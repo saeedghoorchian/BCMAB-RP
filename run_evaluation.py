@@ -1,6 +1,8 @@
 import argparse
 import numpy as np
 import timeit
+import json
+import pickle
 
 from data_loading import get_r6b_data, get_r6b_pickle_data, get_movielens_data
 from evaluation import evaluate_policy_on_r6b, evaluate_policy_on_movielens
@@ -25,11 +27,10 @@ def run_evaluation(trials, num_rep, reduct_matrix, dataset_type):
     cum_ctr = {}
     time_all_dict = {}
 
-    i = 0
     for bandit_name in experiment_bandit:
-        print(bandit_name)
-        reward_all, ctr_all, final_rew_all, time_all = [], [], [], []
+        reward_all, ctr_all, final_rew_all, final_ctr_all, time_all = [], [], [], [], []
         for j in range(num_rep):
+            print(f"{bandit_name} repetition {j+1}")
             timeBegin = timeit.default_timer()
 
             policy = policy_generation(bandit_name, reduct_matrix)
@@ -49,17 +50,28 @@ def run_evaluation(trials, num_rep, reduct_matrix, dataset_type):
             ctr_all.append(seq_ctr)
             time_all.append(timeEnd - timeBegin)
             final_rew_all.append(seq_reward[times - 1])
+            final_ctr_all.append(seq_ctr[times - 1])
+            print(f"This took {timeEnd - timeBegin:.4f} seconds.\n")
 
-        results[bandit_name] = [np.mean(time_all)]
-        results[bandit_name].append(np.mean(final_rew_all))  # average of final regret for n rep
-        results[bandit_name].append(np.var(final_rew_all))
+        results[bandit_name]["Time"] = np.mean(time_all)
+        results[bandit_name]["Total reward mean"] = np.mean(final_rew_all)
+        results[bandit_name]["Total reward std"] = np.std(final_rew_all)
+        results[bandit_name]["Total CTR mean"] = np.mean(final_ctr_all)
+        results[bandit_name]["Total CTR std"] = np.std(final_ctr_all)
 
         time_all_dict[bandit_name] = time_all
         cum_reward[bandit_name] = reward_all
         cum_ctr[bandit_name] = ctr_all
 
-    print("Done!")
     return results, cum_reward, cum_ctr, time_all_dict
+
+
+def save_results(results, t, n, d):
+    with open(f"results/results_t_{t}_n_{n}_d_{d}.pickle", "wb") as f:
+        pickle.dump(results, f)
+
+    with open(f"results/results_t_{t}_n_{n}_d_{d}.json", "w") as f:
+        json.dump(results[0], f)
 
 
 if __name__ == "__main__":
@@ -101,4 +113,13 @@ if __name__ == "__main__":
 
     reduct_matrix = get_reduct_matrix(args.dimension, args.load_old_reduct_matrix)
 
-    run_evaluation(args.trials, args.num_rep, reduct_matrix, dataset_type="r6b")
+    timeBegin = timeit.default_timer()
+    results = run_evaluation(args.trials, args.num_rep, reduct_matrix, dataset_type="r6b")
+
+    print("Saving results")
+    save_results(results, args.trials, args.num_rep, args.dimension)
+
+    timeEnd = timeit.default_timer()
+    print(f"Done.\nThe whole experiment took {timeEnd - timeBegin:.2f} seconds.")
+
+
