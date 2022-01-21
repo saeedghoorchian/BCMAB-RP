@@ -1,7 +1,7 @@
 import numpy as np
 import random
 
-ORIGINAL_DIMENSION = 120
+ORIGINAL_DIMENSION = 136  # For R6B dataset
 
 
 def get_reduct_matrix(dimension, load_old_reduct_matrix):

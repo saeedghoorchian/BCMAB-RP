@@ -1,63 +1,40 @@
 import numpy as np
 
-def evaluate_policy_on_r6b(policy, bandit, streaming_batch, user_feature, reward_list, actions, action_features,
-                                 times):  # action_context=None
-    # times = 10000 #len(streaming_batch)
-    seq_error = np.zeros(shape=(times, 1))
 
-    action_context_dict = {}
-    for action_id in actions:  # movie_id :)
-        action_context_dict[action_id] = np.array(action_features[action_features['movieid'] == action_id])[0][1:]
-    if bandit in ['BCMABRP', 'CBRAP', 'LinearTS', 'LinUCB']:
+def evaluate_policy_on_r6b(policy, bandit_name, data, trials):
+    trial = 0
 
-        j = 0  #
-        t = 0  #
-        while t < times:  #
-            j = j + 1  #
-            if len(np.array(user_feature[user_feature.index == streaming_batch.iloc[j, 0]])) == 0:  #
-                print("time with no user:" + str(j))
-                continue
-            feature = np.array(user_feature[user_feature.index == streaming_batch.iloc[j, 0]])[0]  #
-            full_context = {}
-            for action_id in actions:  # movie_id :)
-                full_context[action_id] = np.append(action_context_dict[action_id], feature)  # feature
-            # history_m, action_t = policy.get_action(full_context, 1)
-            action_t = policy.get_action(full_context, 1)
-            watched_list = reward_list[reward_list['user_id'] == streaming_batch.iloc[j, 0]]  #
-            if action_t not in list(watched_list['movie_id']):
+    total_reward = 0
+    reward = []
+    ctr = []
 
-                policy.reward(0.0)
-                if t == 0:
-                    seq_error[t] = 1.0
-                else:
-                    seq_error[t] = seq_error[t - 1] + 1.0
+    events = data.events
 
-            else:
+    for event in events:
 
-                policy.reward(1.0)
-                if t > 0:
-                    seq_error[t] = seq_error[t - 1]
+        # Keys of full context are action ids. In R6B dataset action ids are indexes of articles in the pool.
+        full_context = {}
+        for action_id in event.pool_indexes:
+            full_context[action_id] = event.user_features
 
-            t = t + 1  #
-        print("jj = " + str(j))
-    elif bandit == 'random':
+        # action_t is index of article relative to the pool
+        action_t = policy.get_action(full_context)
 
-        j = 0
-        t = 0
-        while t < times:
-            j = j + 1
-            if len(np.array(user_feature[user_feature.index == streaming_batch.iloc[j, 0]])) == 0:
-                print("time in random with no user:" + str(j))
-                continue
-            action_t = actions[np.random.randint(0, len(actions) - 1)]
-            watched_list = reward_list[reward_list['user_id'] == streaming_batch.iloc[j, 0]]
-            if action_t not in list(watched_list['movie_id']):
-                if t == 0:
-                    seq_error[t] = 1.0
-                else:
-                    seq_error[t] = seq_error[t - 1] + 1.0
-            else:
-                if t > 0:
-                    seq_error[t] = seq_error[t - 1]
-            t = t + 1
-    return seq_error
+        if action_t == event.displayed_pool_index:
+            trial += 1
+            policy.reward(event.user_click)
+
+            total_reward += event.user_click
+            reward.append(total_reward)
+            ctr.append(total_reward / trial)
+
+        else:
+            # On r6b evaluation is on logged data. If the chosen article was not chosen in log data, this
+            # datapoint is just skipped. See "Unbiased Offline Evaluation of Contextual-bandit-based News
+            # Article Recommendation Algorithms" Li et. al.
+            pass
+
+        if trial >= trials:
+            break
+
+    return reward, ctr

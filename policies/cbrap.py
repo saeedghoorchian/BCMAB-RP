@@ -71,7 +71,7 @@ class CBRAP:
 
         return estimated_reward_dict, uncertainty_dict, score_dict
 
-    def get_action(self, context, n_actions=1):
+    def get_action(self, context):
         # if not isinstance(context, dict):
         #     raise ValueError( "LinUCB requires context dict for all actions!")
 

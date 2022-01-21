@@ -93,7 +93,7 @@ class BCMABRP:
             uncertainty_dict[action_id] = float(score - estimated_reward)
         return estimated_reward_dict, uncertainty_dict, score_dict  # , context_array
 
-    def get_action(self, context, n_actions=1):
+    def get_action(self, context):
         # if not isinstance(context, dict):
         #     raise ValueError( "LinThompSamp requires context dict for all actions!")
 

@@ -23,7 +23,7 @@ def evaluate_policy_on_movielens(policy, bandit, streaming_batch, user_feature, 
             for action_id in actions:  # movie_id :)
                 full_context[action_id] = np.append(action_context_dict[action_id], feature)  # feature
             # history_m, action_t = policy.get_action(full_context, 1)
-            action_t = policy.get_action(full_context, 1)
+            action_t = policy.get_action(full_context)
             watched_list = reward_list[reward_list['user_id'] == streaming_batch.iloc[j, 0]]  #
             if action_t not in list(watched_list['movie_id']):
 

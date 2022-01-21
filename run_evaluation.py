@@ -2,62 +2,64 @@ import argparse
 import numpy as np
 import timeit
 
+from data_loading import get_r6b_data, get_r6b_pickle_data, get_movielens_data
 from evaluation import evaluate_policy_on_r6b, evaluate_policy_on_movielens
 from policies import policy_generation
 from reduct_matrix import get_reduct_matrix
 
 
 def run_evaluation(trials, num_rep, reduct_matrix, dataset_type):
-    print(num_rep)
+    print(f"Running each algorithm for {num_rep} repetitions")
     if dataset_type == "r6b":
-        data = get_r6b_data()
+        data = get_r6b_pickle_data()
     elif dataset_type == "movielens":
         data = get_movielens_data()
     else:
         raise ValueError(f"Unknown dataset type {dataset_type}")
 
     times = trials
-    seq_rew = np.arange(times) + 1
-    seq_rew = seq_rew.reshape(times, 1)
     # conduct analyses
     experiment_bandit = ['BCMABRP', 'CBRAP', 'LinearTS', 'LinUCB', 'random']
     results = {}
-    cum_results = {}
+    cum_reward = {}
+    cum_ctr = {}
     time_all_dict = {}
 
     i = 0
-    for bandit in experiment_bandit:
-        print(bandit)
-        regret_all, reward_all, final_rew_all, time_all = [], [], [], []
+    for bandit_name in experiment_bandit:
+        print(bandit_name)
+        reward_all, ctr_all, final_rew_all, time_all = [], [], [], []
         for j in range(num_rep):
             timeBegin = timeit.default_timer()
 
+            policy = policy_generation(bandit_name, reduct_matrix)
             if dataset_type == "r6b":
-            
+                seq_reward, seq_ctr = evaluate_policy_on_r6b(policy, bandit_name, data, times)
             elif dataset_type == "movielens":
                 # TODO Implement movielens evaluation
                 streaming_batch, user_feature, actions, reward_list, action_context = data
                 action_features = None
-                policy = policy_generation(bandit, actions, reduct_matrix)
-                seq_error = evaluate_policy_on_movielens(policy, bandit, streaming_batch, user_feature, reward_list,
+                seq_reward = evaluate_policy_on_movielens(policy, bandit_name, streaming_batch, user_feature, reward_list,
                                               actions, action_features, times)
+                seq_ctr = None
 
-            regret_all.append(seq_error)
             timeEnd = timeit.default_timer()
 
+            reward_all.append(seq_reward)
+            ctr_all.append(seq_ctr)
             time_all.append(timeEnd - timeBegin)
+            final_rew_all.append(seq_reward[times - 1])
 
-            final_rew_all.append(times - seq_error[times - 1])
+        results[bandit_name] = [np.mean(time_all)]
+        results[bandit_name].append(np.mean(final_rew_all))  # average of final regret for n rep
+        results[bandit_name].append(np.var(final_rew_all))
 
-        results[bandit] = [np.mean(time_all)]
-        results[bandit].append(np.mean(final_rew_all))  # average of final regret for n rep
-        results[bandit].append(np.var(final_rew_all))
-
-        time_all_dict[bandit] = time_all
-        cum_results[bandit] = regret_all
+        time_all_dict[bandit_name] = time_all
+        cum_reward[bandit_name] = reward_all
+        cum_ctr[bandit_name] = ctr_all
 
     print("Done!")
-    return results, cum_results, time_all_dict
+    return results, cum_reward, cum_ctr, time_all_dict
 
 
 if __name__ == "__main__":
