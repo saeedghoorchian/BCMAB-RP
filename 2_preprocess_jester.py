@@ -4,6 +4,7 @@ import pandas as pd
 from surprise import Dataset, Reader, SVD, accuracy
 from surprise.model_selection import train_test_split
 
+from config.cofig import PROJECT_DIR
 
 def make_user_stream(user_features, times):
     """This function makes a sequence of random users.
@@ -40,11 +41,11 @@ def main_data():
     idx_item_int = [int(item) for item in idx_item]
     print("#items in train set: " + str(len(idx_item)))
 
-    np.save('dataset/jester/idx_item', idx_item)
+    np.save(f"{PROJECT_DIR}/dataset/jester/idx_item", idx_item)
 
     action_features = pd.DataFrame(data=qi_all)
     action_features.insert(0, 'jokeid', idx_item_int)  # action_features["MovieID"] = idx
-    action_features.to_csv('dataset/jester/action_features.csv', index=False)
+    action_features.to_csv(f"{PROJECT_DIR}/dataset/jester/action_features.csv", index=False)
 
     # Users
     idx_user = []
@@ -55,10 +56,10 @@ def main_data():
 
     user_features = pd.DataFrame(data=pu_all)
     user_features.insert(0, 'userid', idx_user_int)
-    user_features.to_csv('dataset/jester/user_features.csv', index=False)
+    user_features.to_csv(f"{PROJECT_DIR}/dataset/jester/user_features.csv", index=False)
 
     user_stream = make_user_stream(user_features, 15000)
-    np.save('dataset/jester/user_stream', user_stream)
+    np.save(f"{PROJECT_DIR}/dataset/jester/user_stream", user_stream)
 
     # Ratings
     all_ratings = pd.DataFrame(data=f)
@@ -75,11 +76,11 @@ def main_data():
 
     top_jokes["JokeID"] = pd.to_numeric(top_jokes["JokeID"])
     top_jokes["UserID"] = pd.to_numeric(top_jokes["UserID"])
-    top_jokes.to_csv('dataset/jester/top_jokes.csv')
+    top_jokes.to_csv(f"{PROJECT_DIR}/dataset/jester/top_jokes.csv")
 
     reward_list = top_jokes[['UserID', 'JokeID', 'Reward']]
     reward_list = reward_list[reward_list['Reward'] == 1]
-    reward_list.to_csv('dataset/jester/reward_list.csv')
+    reward_list.to_csv(f"{PROJECT_DIR}/dataset/jester/reward_list.csv")
 
 
 if __name__ == '__main__':

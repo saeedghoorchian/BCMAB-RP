@@ -5,15 +5,16 @@ import pickle
 
 from evaluator import run_evaluation
 from reduct_matrix import get_reduct_matrix
+from config.cofig import PROJECT_DIR
 
 EVALUATION_CONFIG_FILE = "config/evaluation.json"
 
 
 def save_results(results, t, n, d):
-    with open(f"results/results_t_{t}_n_{n}_d_{d}.pickle", "wb") as f:
+    with open(f"{PROJECT_DIR}/results/results_t_{t}_n_{n}_d_{d}.pickle", "wb") as f:
         pickle.dump(results, f)
 
-    with open(f"results/results_t_{t}_n_{n}_d_{d}.json", "w") as f:
+    with open(f"{PROJECT_DIR}/results/results_t_{t}_n_{n}_d_{d}.json", "w") as f:
         json.dump(results[0], f)
 
 

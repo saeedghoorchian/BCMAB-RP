@@ -5,14 +5,14 @@ import pickle
 
 from reduct_matrix import get_reduct_matrix
 from evaluator import run_evaluation
-
+from config.cofig import PROJECT_DIR
 
 
 def save_results(evaluation_results, config_file, t, n, d):
-    with open(f"tuning/results_{config_file.split('.')[0]}_t_{t}_n_{n}_d_{d}.pickle", "wb") as f:
+    with open(f"{PROJECT_DIR}/tuning/results_{config_file.split('.')[0]}_t_{t}_n_{n}_d_{d}.pickle", "wb") as f:
         pickle.dump(evaluation_results, f)
 
-    with open(f"tuning/results_t_{t}_n_{n}_d_{d}.json", "w") as f:
+    with open(f"{PROJECT_DIR}/tuning/results_t_{t}_n_{n}_d_{d}.json", "w") as f:
         json.dump(evaluation_results[0], f)
 
 

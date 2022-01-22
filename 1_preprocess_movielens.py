@@ -2,6 +2,7 @@ import itertools
 import numpy as np
 import pandas as pd
 
+from config.cofig import PROJECT_DIR
 
 def movie_preprocessing(movie):
     movie_col = list(movie.columns)
@@ -52,25 +53,25 @@ def feature_extraction(data):
 
 def main_data():
     # read and preprocess the movie data
-    movie = pd.read_table('dataset/movielens/movies.dat', sep='::', names=['movie_id', 'movie_name', 'tag'], engine='python')
+    movie = pd.read_table(f'{PROJECT_DIR}/dataset/movielens/movies.dat', sep='::', names=['movie_id', 'movie_name', 'tag'], engine='python')
     movie = movie_preprocessing(movie)
 
     # read the ratings data and merge it with movie data
-    rating = pd.read_table("dataset/movielens/ratings.dat", sep="::",
+    rating = pd.read_table(f"{PROJECT_DIR}/dataset/movielens/ratings.dat", sep="::",
                            names=["user_id", "movie_id", "rating", "timestamp"], engine='python')
     data = pd.merge(rating, movie, on="movie_id")
 
     # extract feature from our data set
     streaming_batch, user_feature, actions, reward_list = feature_extraction(data)
-    streaming_batch.to_csv("dataset/movielens/streaming_batch.csv", sep='\t', index=False)
-    user_feature.to_csv("dataset/movielens/user_feature.csv", sep='\t')
-    pd.DataFrame(actions, columns=['movie_id']).to_csv("dataset/movielens/actions.csv", sep='\t', index=False)
-    reward_list.to_csv("dataset/movielens/reward_list.csv", sep='\t', index=False)
+    streaming_batch.to_csv(f"{PROJECT_DIR}/dataset/movielens/streaming_batch.csv", sep='\t', index=False)
+    user_feature.to_csv(f"{PROJECT_DIR}/dataset/movielens/user_feature.csv", sep='\t')
+    pd.DataFrame(actions, columns=['movie_id']).to_csv(f"{PROJECT_DIR}/dataset/movielens/actions.csv", sep='\t', index=False)
+    reward_list.to_csv(f"{PROJECT_DIR}/dataset/movielens/reward_list.csv", sep='\t', index=False)
 
     action_context = movie[movie['movie_id'].isin(actions)]
-    action_context.to_csv("dataset/movielens/action_context.csv", sep='\t', index = False)
+    action_context.to_csv(f"{PROJECT_DIR}/dataset/movielens/action_context.csv", sep='\t', index = False)
 
-    movie.to_csv("dataset/movielens/movie.csv", sep='\t', index=False)
+    movie.to_csv(f"{PROJECT_DIR}/dataset/movielens/movie.csv", sep='\t', index=False)
 
 
 if __name__ == '__main__':
