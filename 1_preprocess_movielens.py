@@ -73,6 +73,5 @@ def main_data():
     movie.to_csv("dataset/movielens/movie.csv", sep='\t', index=False)
 
 
-__name__ = '__main__'
 if __name__ == '__main__':
     main_data()

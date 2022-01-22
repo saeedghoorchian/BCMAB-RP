@@ -2,8 +2,8 @@ import numpy as np
 import timeit
 import json
 
-from data_loading import get_r6b_pickle_data, get_movielens_data
-from evaluation import evaluate_policy_on_r6b, evaluate_policy_on_movielens
+from data_loading import get_jester_data, get_movielens_data
+from evaluation import evaluate_policy_on_jester, evaluate_policy_on_movielens
 from policies import policy_generation
 
 
@@ -13,8 +13,8 @@ def run_evaluation(trials, num_rep, reduct_matrix, config_file, dataset_type):
     with open(config_file, "r") as f:
         experiment_config = json.load(f)
 
-    if dataset_type == "r6b":
-        data = get_r6b_pickle_data()
+    if dataset_type == "jester":
+        data = get_jester_data()
     elif dataset_type == "movielens":
         data = get_movielens_data()
     else:
@@ -25,7 +25,6 @@ def run_evaluation(trials, num_rep, reduct_matrix, config_file, dataset_type):
 
     results = {}
     cum_reward = {}
-    cum_ctr = {}
     time_all_dict = {}
 
     for experiment in experiment_config:
@@ -44,13 +43,16 @@ def run_evaluation(trials, num_rep, reduct_matrix, config_file, dataset_type):
                 print(f"{policy.name} repetition {j+1}")
 
                 if dataset_type == "r6b":
-                    seq_reward, seq_ctr = evaluate_policy_on_r6b(policy, bandit_name, data, times)
+                    top_jokes, reward_list, actions, action_features, user_features, user_stream = data
+                    seq_reward = evaluate_policy_on_jester(
+                        policy, bandit_name, top_jokes, reward_list, actions, action_features, user_features, times, user_stream
+                    )
                 elif dataset_type == "movielens":
                     # TODO Implement movielens evaluation
                     streaming_batch, user_feature, actions, reward_list, action_context = data
                     action_features = None
                     seq_reward = evaluate_policy_on_movielens(policy, bandit_name, streaming_batch, user_feature, reward_list,
-                                                  actions, action_features, times)
+                                                  actions, action_context, times)
 
                 timeEnd = timeit.default_timer()
 

@@ -1,14 +1,14 @@
 import numpy as np
 
 
-def evaluate_policy_on_movielens(policy, bandit, streaming_batch, user_feature, reward_list, actions, action_features,
+def evaluate_policy_on_movielens(policy, bandit, streaming_batch, user_feature, reward_list, actions, action_context,
                                  times):  # action_context=None
-    seq_error = np.zeros(shape=(times, 1))
+    seq_reward = np.zeros(shape=(times, 1))
 
     action_context_dict = {}
     for action_id in actions:  # movie_id :)
-        action_context_dict[action_id] = np.array(action_features[action_features['movieid'] == action_id])[0][1:]
-    if bandit in ['BCMABRP', 'CBRAP', 'LinearTS', 'LinUCB']:
+        action_context_dict[action_id] = np.array(action_context[action_context['movie_id'] == action_id])[0][2:]
+    if bandit != 'random':
 
         j = 0  #
         t = 0  #
@@ -25,18 +25,17 @@ def evaluate_policy_on_movielens(policy, bandit, streaming_batch, user_feature, 
             action_t = policy.get_action(full_context)
             watched_list = reward_list[reward_list['user_id'] == streaming_batch.iloc[j, 0]]  #
             if action_t not in list(watched_list['movie_id']):
-
                 policy.reward(0.0)
                 if t == 0:
-                    seq_error[t] = 1.0
+                    seq_reward[t] = 0.0
                 else:
-                    seq_error[t] = seq_error[t - 1] + 1.0
-
+                    seq_reward[t] = seq_reward[t - 1]
             else:
-
                 policy.reward(1.0)
-                if t > 0:
-                    seq_error[t] = seq_error[t - 1]
+                if t == 0:
+                    seq_reward[t] = 1.0
+                else:
+                    seq_reward[t] = seq_reward[t - 1] + 1.0
 
             t = t + 1  #
         print("jj = " + str(j))
@@ -53,11 +52,11 @@ def evaluate_policy_on_movielens(policy, bandit, streaming_batch, user_feature, 
             watched_list = reward_list[reward_list['user_id'] == streaming_batch.iloc[j, 0]]
             if action_t not in list(watched_list['movie_id']):
                 if t == 0:
-                    seq_error[t] = 1.0
+                    seq_reward[t] = 1.0
                 else:
-                    seq_error[t] = seq_error[t - 1] + 1.0
+                    seq_reward[t] = seq_reward[t - 1] + 1.0
             else:
                 if t > 0:
-                    seq_error[t] = seq_error[t - 1]
+                    seq_reward[t] = seq_reward[t - 1]
             t = t + 1
-    return seq_error
+    return seq_reward

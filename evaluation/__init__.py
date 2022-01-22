@@ -1,2 +1,3 @@
 from evaluation.r6b_evaluation import evaluate_policy_on_r6b
+from evaluation.jester_evaluation import evaluate_policy_on_jester
 from evaluation.movielens_evaluation import evaluate_policy_on_movielens
