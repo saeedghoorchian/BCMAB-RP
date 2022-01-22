@@ -13,6 +13,8 @@ class LinUCB:
         self.model_param_memory = deque(maxlen=1)
         self.history_memory = deque(maxlen=1)
 
+        self.name = f"LinUCB (alpha={self.alpha})"
+
     def update_history(self, hst):  # (context, recommendatin_id)
         self.history_memory.append(hst)
 

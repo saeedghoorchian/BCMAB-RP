@@ -1,0 +1,7 @@
+[
+   {"algo": "BCMABRP", "params": [{"nu": 0.5}]},
+   {"algo": "CBRAP", "params": [{"alpha": 0.5}]},
+   {"algo": "LinearTS", "params": [{"nu": 0.5}]},
+   {"algo": "LinUCB", "params": [{"alpha": 0.5}]},
+   {"algo": "random"}
+]

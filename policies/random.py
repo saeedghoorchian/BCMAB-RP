@@ -3,7 +3,7 @@ import numpy as np
 
 class RandomPolicy:
     def __init__(self):
-        pass
+        self.name = "RandomPolicy"
 
     def initialization(self):
         pass

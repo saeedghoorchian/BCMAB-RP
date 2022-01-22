@@ -5,16 +5,20 @@ from policies.linucb import LinUCB
 from policies.random import RandomPolicy
 
 
-def policy_generation(bandit, reduct_matrix):
+def policy_generation(bandit, reduct_matrix, params):
     org_dim, red_dim = reduct_matrix.shape
     if bandit == 'BCMABRP':
-        policy = BCMABRP(org_dim, red_dim, reduct_matrix, delta=0.5, R=0.01, lambd=0.5)
+        nu = params.get("nu", 0.5)
+        policy = BCMABRP(org_dim, red_dim, reduct_matrix, delta=0.5, R=0.01, lambd=0.5, nu=nu)
     elif bandit == 'CBRAP':
-        policy = CBRAP(org_dim, red_dim, reduct_matrix, alpha=0.5)
+        alpha = params.get("alpha", 0.5)
+        policy = CBRAP(org_dim, red_dim, reduct_matrix, alpha=alpha)
     elif bandit == 'LinearTS':
-        policy = LinearTS(org_dim, delta=0.5, R=0.01, epsilon=0.5)
+        nu = params.get("nu", 0.5)
+        policy = LinearTS(org_dim, delta=0.5, R=0.01, epsilon=0.5, nu=nu)
     elif bandit == 'LinUCB':
-        policy = LinUCB(org_dim, alpha=0.5)
+        alpha = params.get("alpha", 0.5)
+        policy = LinUCB(org_dim, alpha=alpha)
     elif bandit == 'random':
         policy = RandomPolicy()
 

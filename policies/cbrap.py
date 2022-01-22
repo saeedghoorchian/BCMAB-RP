@@ -14,13 +14,9 @@ class CBRAP:
         self.model_param_memory = deque(maxlen=1)
         self.history_memory = deque(maxlen=1)
 
-        # reduction_matrix = np.zeros((context_dimension, red_dim))
-        # for i in range(context_dimension):
-        #     for j in range(red_dim):
-        #         random_value = random.gauss(0, 1) # standard random matrix with N(0, 1)
-        #         reduction_matrix[i,j] = random_value
-        # self.reduction_matrix = reduction_matrix
         self.reduction_matrix = reduct_matrix
+
+        self.name = f"CBRAP (alpha={self.alpha})"
 
     def update_history(self, hst):  # (context, recommendatin_id)
         self.history_memory.append(hst)

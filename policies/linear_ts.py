@@ -5,7 +5,7 @@ import numpy as np
 
 class LinearTS:
 
-    def __init__(self, context_dimension, delta=0.5, R=0.01, epsilon=0.5):
+    def __init__(self, context_dimension, delta=0.5, R=0.01, epsilon=0.5, nu=0.5):
         super(LinearTS, self).__init__()
         self.context_dimension = context_dimension
         self.random_state = np.random.RandomState()
@@ -35,10 +35,12 @@ class LinearTS:
         #     self.epsilon = epsilon
 
         # self.nu = R * np.sqrt((24 / epsilon)*self.context_dimension*np.log(1 / delta))
-        self.nu = 0.5
+        self.nu = nu
 
         self.model_param_memory = deque(maxlen=1)
         self.history_memory = deque(maxlen=1)
+
+        self.name = f"LinearTS (nu={self.nu})"
 
     def update_history(self, hst):  # (context, recommendatin_id)
         self.history_memory.append(hst)
