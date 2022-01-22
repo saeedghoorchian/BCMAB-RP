@@ -3,18 +3,24 @@ import timeit
 import json
 import pickle
 
-from evaluator import run_evaluation
 from reduct_matrix import get_reduct_matrix
+from evaluator import run_evaluation
 
-EVALUATION_CONFIG_FILE = "config/evaluation.json"
 
 
-def save_results(results, t, n, d):
-    with open(f"results/results_t_{t}_n_{n}_d_{d}.pickle", "wb") as f:
-        pickle.dump(results, f)
+def save_results(evaluation_results, config_file, t, n, d):
+    with open(f"tuning/results_{config_file.split('.')[0]}_t_{t}_n_{n}_d_{d}.pickle", "wb") as f:
+        pickle.dump(evaluation_results, f)
 
-    with open(f"results/results_t_{t}_n_{n}_d_{d}.json", "w") as f:
-        json.dump(results[0], f)
+    with open(f"tuning/results_t_{t}_n_{n}_d_{d}.json", "w") as f:
+        json.dump(evaluation_results[0], f)
+
+
+def analyze_results(evaluation_results):
+    results_list = evaluation_results[0]
+    best_result = max(results_list, key=lambda x: x[1]["Total reward mean"])
+    print(f"Best result is {best_result}")
+    pass
 
 
 if __name__ == "__main__":
@@ -52,18 +58,26 @@ if __name__ == "__main__":
              "Will throw error if no file exists."
     )
 
+    parser.add_argument(
+        "--config",
+        type=str,
+        required=True,
+        help="Config file for parameter tuning",
+    )
+
     args = parser.parse_args()
 
     reduct_matrix = get_reduct_matrix(args.dimension, args.load_old_reduct_matrix)
 
     timeBegin = timeit.default_timer()
-
-    results = run_evaluation(args.trials, args.num_rep, reduct_matrix, EVALUATION_CONFIG_FILE, dataset_type="r6b")
+    evaluation_results = run_evaluation(args.trials, args.num_rep, reduct_matrix, args.config, dataset_type="movie")
 
     print("Saving results")
-    save_results(results, args.trials, args.num_rep, args.dimension)
+    save_results(evaluation_results, args.config, args.trials, args.num_rep, args.dimension)
 
     timeEnd = timeit.default_timer()
     print(f"Done.\nThe whole experiment took {timeEnd - timeBegin:.2f} seconds.")
+
+    analyze_results(evaluation_results)
 
 

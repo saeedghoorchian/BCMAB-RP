@@ -3,7 +3,6 @@ import numpy as np
 
 def evaluate_policy_on_movielens(policy, bandit, streaming_batch, user_feature, reward_list, actions, action_features,
                                  times):  # action_context=None
-    # times = 10000 #len(streaming_batch)
     seq_error = np.zeros(shape=(times, 1))
 
     action_context_dict = {}
