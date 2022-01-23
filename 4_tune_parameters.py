@@ -9,10 +9,11 @@ from config.cofig import PROJECT_DIR
 
 
 def save_results(evaluation_results, config_file, t, n, d, dataset):
-    with open(f"{PROJECT_DIR}/tuning/results_{dataset}_{config_file.split('.')[0]}_t_{t}_n_{n}_d_{d}.pickle", "wb") as f:
+    config_name = config_file.split('/')[-1].split('.')[0]
+    with open(f"{PROJECT_DIR}/tuning/results_{dataset}_{config_name}_t_{t}_n_{n}_d_{d}.pickle", "wb") as f:
         pickle.dump(evaluation_results, f)
 
-    with open(f"{PROJECT_DIR}/tuning/results_{dataset}_{config_file.split('.')[0]}_t_{t}_n_{n}_d_{d}.json", "w") as f:
+    with open(f"{PROJECT_DIR}/tuning/results_{dataset}_{config_name}_t_{t}_n_{n}_d_{d}.json", "w") as f:
         json.dump(evaluation_results[0], f)
 
 
@@ -74,6 +75,9 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+
+    if args.dataset_type not in ["movielens", "jester"]:
+        raise ValueError("--data should be in ['movielens', 'jester']")
 
     reduct_matrix = get_reduct_matrix(args.dataset_type, args.dimension, args.load_old_reduct_matrix)
 

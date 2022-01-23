@@ -63,6 +63,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    if args.dataset_type not in ["movielens", "jester"]:
+        raise ValueError("--data should be in ['movielens', 'jester']")
+
     reduct_matrix = get_reduct_matrix(args.dataset_type, args.dimension, args.load_old_reduct_matrix)
 
     timeBegin = timeit.default_timer()

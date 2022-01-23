@@ -3,6 +3,7 @@ from policies.cbrap import CBRAP
 from policies.linear_ts import LinearTS
 from policies.linucb import LinUCB
 from policies.random import RandomPolicy
+from policies.ucb import UCB
 
 
 def policy_generation(bandit, reduct_matrix, params):
@@ -19,6 +20,9 @@ def policy_generation(bandit, reduct_matrix, params):
     elif bandit == 'LinUCB':
         alpha = params.get("alpha", 0.5)
         policy = LinUCB(org_dim, alpha=alpha)
+    elif bandit == 'UCB':
+        alpha = params.get("alpha", 0.5)
+        policy = UCB(alpha)
     elif bandit == 'random':
         policy = RandomPolicy()
 

@@ -1,0 +1,10 @@
+[
+   {"algo": "EGreedy", "params": [
+      {"epsilon": 0.1},
+      {"epsilon": 0.2},
+      {"epsilon": 0.3},
+      {"epsilon": 0.4},
+      {"epsilon": 0.5}
+   ]
+   }
+]

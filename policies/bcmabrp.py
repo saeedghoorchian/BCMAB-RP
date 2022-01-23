@@ -4,7 +4,6 @@ import numpy as np
 
 
 class BCMABRP:
-
     def __init__(self, context_dimension, red_dim, reduct_matrix, delta=0.5, R=0.01, lambd=0.5, nu=0.5):
         super(BCMABRP, self).__init__()
         self.context_dimension = context_dimension
@@ -62,7 +61,7 @@ class BCMABRP:
         self.update_model_param((B, f, inv_B))
         # print(self.model_param_memory)
 
-    def get_score(self, context):
+    def get_score(self, context, trial):
         action_ids = list(six.viewkeys(context))
         context_array = np.asarray([context[action_id] for action_id in action_ids])
         context_array = context_array.dot(self.reduction_matrix)
@@ -89,11 +88,11 @@ class BCMABRP:
             uncertainty_dict[action_id] = float(score - estimated_reward)
         return estimated_reward_dict, uncertainty_dict, score_dict  # , context_array
 
-    def get_action(self, context):
+    def get_action(self, context, trial):
         # if not isinstance(context, dict):
         #     raise ValueError( "LinThompSamp requires context dict for all actions!")
 
-        estimated_reward, uncertainty, score = self.get_score(context)
+        estimated_reward, uncertainty, score = self.get_score(context, trial)
         recommendation_id = max(score, key=score.get)
         self.update_history((context, recommendation_id))
         return recommendation_id

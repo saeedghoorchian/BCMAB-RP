@@ -34,7 +34,7 @@ class CBRAP:
         self.update_model_param((A, b, inv_A))
         # print(self.model_param_memory)
 
-    def get_score(self, context):
+    def get_score(self, context, trial):
         action_ids = list(six.viewkeys(context))
         context_array = np.asarray([context[action_id] for action_id in action_ids])
         context_array = context_array.dot(self.reduction_matrix)
@@ -67,11 +67,11 @@ class CBRAP:
 
         return estimated_reward_dict, uncertainty_dict, score_dict
 
-    def get_action(self, context):
+    def get_action(self, context, trial):
         # if not isinstance(context, dict):
         #     raise ValueError( "LinUCB requires context dict for all actions!")
 
-        estimated_reward, uncertainty, score = self.get_score(context)
+        estimated_reward, uncertainty, score = self.get_score(context, trial)
         recommendation_id = max(score, key=score.get)
         self.update_history((context, recommendation_id))
         return recommendation_id

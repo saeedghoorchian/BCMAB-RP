@@ -61,7 +61,8 @@ def run_evaluation(trials, num_rep, reduct_matrix, config_file, dataset_type):
                 final_rew_all.append(seq_reward[times - 1])
                 print(f"This took {timeEnd - timeBegin:.4f} seconds.\n")
 
-            results[policy.name] = {"Time":  np.mean(time_all)}
+            results[policy.name] = {"Time mean":  np.mean(time_all)}
+            results[policy.name]["Time std"] = np.std(time_all)
             results[policy.name]["Total reward mean"] = np.mean(final_rew_all)
             results[policy.name]["Total reward std"] = np.std(final_rew_all)
 

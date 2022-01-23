@@ -8,7 +8,7 @@ class RandomPolicy:
     def initialization(self):
         pass
 
-    def get_action(self, context):
+    def get_action(self, context, trial):
         actions = list(context.keys())
         return actions[np.random.randint(0, len(actions) - 1)]
 

@@ -4,6 +4,7 @@ import pandas as pd
 
 from config.cofig import PROJECT_DIR
 
+
 def movie_preprocessing(movie):
     movie_col = list(movie.columns)
     movie_tag = [doc.split('|') for doc in movie['tag']]
