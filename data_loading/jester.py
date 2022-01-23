@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from config.cofig import PROJECT_DIR
 
 
 def get_jester_data():
