@@ -1,5 +1,6 @@
 from policies.bcmabrp import BCMABRP
 from policies.cbrap import CBRAP
+from policies.egreedy import EGreedy
 from policies.linear_ts import LinearTS
 from policies.linucb import LinUCB
 from policies.random import RandomPolicy
@@ -23,6 +24,9 @@ def policy_generation(bandit, reduct_matrix, params):
     elif bandit == 'UCB':
         alpha = params.get("alpha", 0.5)
         policy = UCB(alpha)
+    elif bandit == 'EGreedy':
+        epsilon = params.get("epsilon", 0.2)
+        policy = EGreedy(epsilon)
     elif bandit == 'random':
         policy = RandomPolicy()
 
