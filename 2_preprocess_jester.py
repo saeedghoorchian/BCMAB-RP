@@ -6,6 +6,7 @@ from surprise.model_selection import train_test_split
 
 from config.cofig import PROJECT_DIR
 
+
 def make_user_stream(user_features, times):
     """This function makes a sequence of random users.
     In the policy_evaluation function, users arrive according to this sequence
@@ -62,7 +63,8 @@ def main_data():
     np.save(f"{PROJECT_DIR}/dataset/jester/user_stream", user_stream)
 
     # Ratings
-    all_ratings = pd.DataFrame(data=f)
+    ratings = jokes.raw_ratings
+    all_ratings = pd.DataFrame(data=ratings)
     all_ratings.columns = ['UserID', 'JokeID', 'Rating', 'other']
     del all_ratings['other']  # all_ratings.drop('other', axis=0)
 

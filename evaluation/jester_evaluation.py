@@ -23,7 +23,7 @@ def evaluate_policy_on_jester(policy, bandit, top_jokes, reward_list, actions, a
 
             #                 print(full_context[action_id].shape)
 
-            action_t = policy.get_action(full_context, 1)
+            action_t = policy.get_action(full_context)
 
             watched_list = np.array(reward_list[reward_list["UserID"] == user_t]["JokeID"])
             # print("user_t: " + str(user_t))

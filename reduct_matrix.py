@@ -2,12 +2,12 @@ import numpy as np
 import random
 from config.cofig import PROJECT_DIR
 
-ORIGINAL_DIMENSION = 40  # For Movie lens dataset
-# ORIGINAL_DIMENSION = 300  # For Jester dataset
+# ORIGINAL_DIMENSION = 40  # For Movie lens dataset
+ORIGINAL_DIMENSION = 300  # For Jester dataset
 
 
-def get_reduct_matrix(dimension, load_old_reduct_matrix):
-    original_dimension = ORIGINAL_DIMENSION
+def get_reduct_matrix(dataset_type, dimension, load_old_reduct_matrix):
+    original_dimension = 300 if dataset_type == "jester" else 40
     reduced_dimension = dimension
     if load_old_reduct_matrix:
         reduct_matrix = np.load(f"{PROJECT_DIR}/matrices/reduct_matrix_{dimension}.npy")

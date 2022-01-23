@@ -10,11 +10,11 @@ from config.cofig import PROJECT_DIR
 EVALUATION_CONFIG_FILE = "config/evaluation.json"
 
 
-def save_results(results, t, n, d):
-    with open(f"{PROJECT_DIR}/results/results_t_{t}_n_{n}_d_{d}.pickle", "wb") as f:
+def save_results(results, t, n, d, dataset):
+    with open(f"{PROJECT_DIR}/results/results_{dataset}_t_{t}_n_{n}_d_{d}.pickle", "wb") as f:
         pickle.dump(results, f)
 
-    with open(f"{PROJECT_DIR}/results/results_t_{t}_n_{n}_d_{d}.json", "w") as f:
+    with open(f"{PROJECT_DIR}/results/results_{dataset}_t_{t}_n_{n}_d_{d}.json", "w") as f:
         json.dump(results[0], f)
 
 
@@ -53,16 +53,26 @@ if __name__ == "__main__":
              "Will throw error if no file exists."
     )
 
+    parser.add_argument(
+        '--data',
+        dest="dataset_type",
+        type=str,
+        default="jester",
+        help="Which data to use, 'movielens' or 'jester'",
+    )
+
     args = parser.parse_args()
 
-    reduct_matrix = get_reduct_matrix(args.dimension, args.load_old_reduct_matrix)
+    reduct_matrix = get_reduct_matrix(args.dataset_type, args.dimension, args.load_old_reduct_matrix)
 
     timeBegin = timeit.default_timer()
 
-    results = run_evaluation(args.trials, args.num_rep, reduct_matrix, EVALUATION_CONFIG_FILE, dataset_type="movielens")
+    results = run_evaluation(
+        args.trials, args.num_rep, reduct_matrix, EVALUATION_CONFIG_FILE, dataset_type=args.dataset_type
+    )
 
     print("Saving results")
-    save_results(results, args.trials, args.num_rep, args.dimension)
+    save_results(results, args.trials, args.num_rep, args.dimension, args.dataset_type)
 
     timeEnd = timeit.default_timer()
     print(f"Done.\nThe whole experiment took {timeEnd - timeBegin:.2f} seconds.")

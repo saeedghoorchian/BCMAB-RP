@@ -42,7 +42,7 @@ def run_evaluation(trials, num_rep, reduct_matrix, config_file, dataset_type):
 
                 print(f"{policy.name} repetition {j+1}")
 
-                if dataset_type == "r6b":
+                if dataset_type == "jester":
                     top_jokes, reward_list, actions, action_features, user_features, user_stream = data
                     seq_reward = evaluate_policy_on_jester(
                         policy, bandit_name, top_jokes, reward_list, actions, action_features, user_features, times, user_stream
