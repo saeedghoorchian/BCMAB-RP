@@ -59,7 +59,7 @@ def main_data():
     user_features.insert(0, 'userid', idx_user_int)
     user_features.to_csv(f"{PROJECT_DIR}/dataset/jester/user_features.csv", index=False)
 
-    user_stream = make_user_stream(user_features, 15000)
+    user_stream = make_user_stream(user_features, 200000)
     np.save(f"{PROJECT_DIR}/dataset/jester/user_stream", user_stream)
 
     # Ratings
