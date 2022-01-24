@@ -24,13 +24,6 @@ class EGreedy:
     def get_score(self, context, trial):
         action_ids = list(six.viewkeys(context))
 
-        # Initialize upon seeing the set of arms for the first time.
-        if self.q is None and self.n is None:
-            self.q, self.n = {}, {}
-            for action_id in action_ids:
-                self.q[action_id] = 0
-                self.n[action_id] = 1
-
         estimated_reward_dict = {}
 
         for action_id in action_ids:
@@ -39,6 +32,14 @@ class EGreedy:
         return estimated_reward_dict
 
     def get_action(self, context, trial):
+        # Initialize upon seeing the set of arms for the first time.
+        action_ids = list(six.viewkeys(context))
+        if self.q is None and self.n is None:
+            self.q, self.n = {}, {}
+            for action_id in action_ids:
+                self.q[action_id] = 0
+                self.n[action_id] = 1
+
         p = np.random.rand()
         if p > self.epsilon:
             # Choose arm with best estimated reward with probability (1-epsilon)
