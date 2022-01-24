@@ -66,9 +66,9 @@ class LinearTS:
         f = self.model_param_memory[0][1]
         inv_B = self.model_param_memory[0][2]
         # mu_hat = np.matmul(np.linalg.inv(B), f)
-        B = B.astype(np.float32)
-        mu_hat = (inv_B).dot(f).astype(np.float32)  # (np.linalg.inv(B)).dot(f).astype(np.float32)
-        # mu_hat = mu_hat.astype(np.float32)
+        B = B.astype(np.float64)
+        mu_hat = (inv_B).dot(f).astype(np.float64)  # (np.linalg.inv(B)).dot(f).astype(np.float64)
+        # mu_hat = mu_hat.astype(np.float64)
         # mu_tilde = self.random_state.multivariate_normal(mu_hat.flat, self.nu**2 * np.linalg.inv(B)) #[..., np.newaxis]
         mu_tilde = self.random_state.multivariate_normal(mu_hat.flat, self.nu ** 2 * inv_B)  # [..., np.newaxis]
         mu_tilde = np.reshape(mu_tilde, (-1, 1))
@@ -106,11 +106,11 @@ class LinearTS:
         # for action_id, reward in six.viewitems(rewards):
         context_t = np.reshape(context[recommendation_id], (-1, 1))
         B = B + context_t.dot(context_t.T)
-        B = B.astype(np.float32)
+        B = B.astype(np.float64)
 
         f = f + reward_t * context_t
         # mu_hat = np.linalg.inv(B).dot(f)
-        inv_B = np.linalg.inv(B)  # .astype(np.float32)
+        inv_B = np.linalg.inv(B)  # .astype(np.float64)
         # print(self.model_param_memory)
         self.update_model_param((B, f, inv_B))
         # print(self.model_param_memory)

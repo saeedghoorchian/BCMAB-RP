@@ -34,8 +34,8 @@ class LinUCB:
         A = self.model_param_memory[0][0]
         b = self.model_param_memory[0][1]
         inv_A = self.model_param_memory[0][2]
-        A = A.astype(np.float32)
-        theta = (inv_A).dot(b).astype(np.float32)
+        A = A.astype(np.float64)
+        theta = (inv_A).dot(b).astype(np.float64)
         theta = np.reshape(theta, (-1, 1))
         estimated_reward_array = context_array.dot(theta)
 
@@ -45,7 +45,7 @@ class LinUCB:
 
         for action_id, estimated_reward in zip(action_ids, estimated_reward_array):
             action_context = np.reshape(context[action_id], (-1, 1))
-            action_context = action_context.astype(np.float32)
+            action_context = action_context.astype(np.float64)
 
             estimated_reward_dict[action_id] = float(estimated_reward)
             uncertainty_dict[action_id] = float(self.alpha * np.sqrt(action_context.T.dot(inv_A).dot(action_context)))
@@ -70,7 +70,7 @@ class LinUCB:
 
         context_t = np.reshape(context[recommendation_id], (-1, 1))
         A = A + context_t.dot(context_t.T)
-        A = A.astype(np.float32)
+        A = A.astype(np.float64)
 
         b = b + reward_t * context_t
 
