@@ -27,7 +27,7 @@ def policy_generation(bandit, reduct_matrix, params):
     elif bandit == 'EGreedy':
         epsilon = params.get("epsilon", 0.2)
         policy = EGreedy(epsilon)
-    elif bandit == 'random':
+    elif bandit == 'RandomPolicy':
         policy = RandomPolicy()
 
     policy.initialization()
