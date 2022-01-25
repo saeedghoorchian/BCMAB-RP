@@ -1,13 +1,13 @@
 import numpy as np
 
 
-def evaluate_policy_on_movielens(policy, bandit, streaming_batch, user_feature, reward_list, actions, action_context,
+def evaluate_policy_on_movielens(policy, bandit, streaming_batch, user_feature, reward_list, actions, action_features,
                                  times):  # action_context=None
     seq_reward = np.zeros(shape=(times, 1))
 
     action_context_dict = {}
     for action_id in actions:  # movie_id :)
-        action_context_dict[action_id] = np.array(action_context[action_context['movie_id'] == action_id])[0][2:]
+        action_context_dict[action_id] = np.array(action_features[action_features['movieid'] == action_id])[0][1:]
     if bandit != 'random':
 
         j = 0  #
@@ -15,7 +15,7 @@ def evaluate_policy_on_movielens(policy, bandit, streaming_batch, user_feature, 
         while t < times:  #
             j = j + 1  #
             if len(np.array(user_feature[user_feature.index == streaming_batch.iloc[j, 0]])) == 0:  #
-                print("time with no user:" + str(j))
+                # print("time with no user:" + str(j))
                 continue
             feature = np.array(user_feature[user_feature.index == streaming_batch.iloc[j, 0]])[0]  #
             full_context = {}
@@ -38,6 +38,10 @@ def evaluate_policy_on_movielens(policy, bandit, streaming_batch, user_feature, 
                     seq_reward[t] = seq_reward[t - 1] + 1.0
 
             t = t + 1  #
+
+            if t % 1000 == 0:
+                print(t)
+
         print("jj = " + str(j))
     elif bandit == 'random':
 

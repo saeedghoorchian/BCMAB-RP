@@ -49,10 +49,9 @@ def run_evaluation(trials, num_rep, reduct_matrix, config_file, dataset_type):
                     )
                 elif dataset_type == "movielens":
                     # TODO Implement movielens evaluation
-                    streaming_batch, user_feature, actions, reward_list, action_context = data
-                    action_features = None
+                    streaming_batch, user_feature, actions, reward_list, action_context, action_features = data
                     seq_reward = evaluate_policy_on_movielens(policy, bandit_name, streaming_batch, user_feature, reward_list,
-                                                  actions, action_context, times)
+                                                  actions, action_features, times)
 
                 timeEnd = timeit.default_timer()
 

@@ -1,8 +1,11 @@
 import itertools
 import numpy as np
 import pandas as pd
+from surprise import Dataset, Reader, SVD, accuracy
+from surprise.model_selection import train_test_split
 
 from config.cofig import PROJECT_DIR
+
 
 
 def movie_preprocessing(movie):
@@ -30,11 +33,11 @@ def movie_preprocessing(movie):
 
 
 def feature_extraction(data):
-    # actions: we use top 50 movies as our actions for recommendations
+    # actions: we use top 1000 movies as our actions for recommendations
     actions = data.groupby('movie_id').size().sort_values(ascending=False)[:1000]
     actions = list(actions.index)
 
-    # user_feature: tags they've watched for non-top-50 movies normalized per user
+    # user_feature: tags they've watched for non-top-1000 movies normalized per user
     user_feature = data[~data['movie_id'].isin(actions)]
     user_feature = user_feature.groupby('user_id').aggregate(np.sum)
     user_feature = user_feature.drop(['movie_id', 'rating', 'timestamp'], 1)
@@ -73,6 +76,29 @@ def main_data():
     action_context.to_csv(f"{PROJECT_DIR}/dataset/movielens/action_context.csv", sep='\t', index = False)
 
     movie.to_csv(f"{PROJECT_DIR}/dataset/movielens/movie.csv", sep='\t', index=False)
+
+    ratings_df = pd.read_table(f"{PROJECT_DIR}/dataset/movielens/ratings.dat", sep="::",
+                               names=['UserID', 'MovieID', 'Rating', 'Timestamp'], engine='python')
+    ratings_df['Rating'].unique()
+
+    # instantiate a reader and read in our rating data
+    reader = Reader(rating_scale=(0.5, 5))
+    data = Dataset.load_from_df(ratings_df[['UserID', 'MovieID', 'Rating']], reader)
+
+    # train SVD on 75% of known rates
+    trainset, testset = train_test_split(data, test_size=.25)
+    algorithm = SVD(n_factors=100)
+    algorithm.fit(trainset)
+
+    idx = []
+    for i in range(trainset.n_items):
+        idx.append(trainset.to_raw_iid(i))
+
+    qi_all = algorithm.qi
+
+    action_features = pd.DataFrame(data=qi_all)
+    action_features.insert(0, 'movieid', idx)  # action_features["MovieID"] = idx
+    action_features.to_csv(f"{PROJECT_DIR}/dataset/movielens/action_features_2_CBRAP_BCMABRP.csv", index=False)
 
 
 if __name__ == '__main__':

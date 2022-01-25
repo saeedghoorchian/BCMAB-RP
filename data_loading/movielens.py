@@ -12,9 +12,11 @@ def get_movielens_data():
 
     movie = pd.read_csv(f"{PROJECT_DIR}/dataset/movielens/movie.csv", sep="\t", header=0, engine="c")
 
+    action_features = pd.read_csv(f"{PROJECT_DIR}/dataset/movielens/action_features_2_CBRAP_BCMABRP.csv")
+
     # actions = actions_id #[]
     # for key in actions_id:
     # print(key)
     # action = Action(key) #?
     # actions.append(action)
-    return streaming_batch, user_feature, actions_id, reward_list, action_context  # , movie
+    return streaming_batch, user_feature, actions_id, reward_list, action_context, action_features  # , movie
