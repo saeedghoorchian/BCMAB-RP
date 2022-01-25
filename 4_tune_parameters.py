@@ -70,7 +70,7 @@ if __name__ == "__main__":
         '--data',
         dest="dataset_type",
         type=str,
-        default="jester",
+        default="movielens",
         help="Which data to use, 'movielens' or 'jester'",
     )
 
