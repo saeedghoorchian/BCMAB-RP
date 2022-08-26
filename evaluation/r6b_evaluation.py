@@ -12,9 +12,9 @@ def evaluate_policy_on_r6b(policy, bandit_name, data, trials):
 
     for event in events:
 
-        # Keys of full context are action ids. In R6B dataset action ids are indexes of articles in the pool.
+        # Keys of full context are action ids. In R6B dataset action ids are indices of articles in the pool.
         full_context = {}
-        for action_id in event.pool_indexes:
+        for action_id in event.pool_indices:
             full_context[action_id] = event.user_features
 
         # action_t is index of article relative to the pool

@@ -1,8 +1,7 @@
 import numpy as np
 
 
-def evaluate_policy_on_jester(policy, bandit, top_jokes, reward_list, actions, action_features, user_features, times,
-                          user_stream):
+def evaluate_policy_on_jester(policy, times, actions, action_features, user_stream, user_features, reward_list):
     seq_reward = np.zeros(shape=(times, 1))
 
     action_context_dict = {}

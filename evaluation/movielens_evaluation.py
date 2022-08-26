@@ -1,14 +1,13 @@
 import numpy as np
 
 
-def evaluate_policy_on_movielens(policy, bandit, streaming_batch, user_feature, reward_list, actions, action_features,
-                                 times):  # action_context=None
+def evaluate_policy_on_movielens(policy, times, streaming_batch, user_feature, actions, action_features, reward_list):
     seq_reward = np.zeros(shape=(times, 1))
 
     action_context_dict = {}
     for action_id in actions:  # movie_id :)
         action_context_dict[action_id] = np.array(action_features[action_features['movieid'] == action_id])[0][1:]
-    if bandit != 'random':
+    if policy.name != 'random':
 
         j = 0  #
         t = 0  #
@@ -43,7 +42,7 @@ def evaluate_policy_on_movielens(policy, bandit, streaming_batch, user_feature, 
                 print(t)
 
         print("jj = " + str(j))
-    elif bandit == 'random':
+    elif policy.name == 'random':
 
         j = 0
         t = 0
