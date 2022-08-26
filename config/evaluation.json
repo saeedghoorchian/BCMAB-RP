@@ -1,7 +1,9 @@
 [
-   {"algo": "BCMABRP", "params": [{"nu": 0.5}]},
-   {"algo": "CBRAP", "params": [{"alpha": 0.5}]},
-   {"algo": "LinearTS", "params": [{"nu": 0.5}]},
-   {"algo": "LinUCB", "params": [{"alpha": 0.5}]},
-   {"algo": "random"}
+   {"algo": "BCMABRP", "params": [{"nu": 0.65}]},
+   {"algo": "CBRAP", "params": [{"alpha": 0.4}]},
+   {"algo": "LinearTS", "params": [{"nu": 0.6}]},
+   {"algo": "LinUCB", "params": [{"alpha": 1.7}]},
+   {"algo": "EGreedy", "params": [{"epsilon": 0.1}]},
+   {"algo": "UCB", "params": [{"alpha": 0.3}]},
+   {"algo": "RandomPolicy"}
 ]

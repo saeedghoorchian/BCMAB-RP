@@ -57,13 +57,13 @@ if __name__ == "__main__":
         '--data',
         dest="dataset_type",
         type=str,
-        default="movielens",
-        help="Which data to use, 'movielens' or 'jester'",
+        default="amazon",
+        help="Which data to use, 'amazon', 'movielens' or 'jester'",
     )
 
     args = parser.parse_args()
 
-    if args.dataset_type not in ["movielens", "jester"]:
+    if args.dataset_type not in ["amazon", "movielens", "jester"]:
         raise ValueError("--data should be in ['movielens', 'jester']")
 
     reduct_matrix = get_reduct_matrix(args.dataset_type, args.dimension, args.load_old_reduct_matrix)

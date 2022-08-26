@@ -1,6 +1,6 @@
 [
-   {"algo": "random", "params": [
-      {"nu": 0.9}
+   {"algo": "RandomPolicy", "params": [
+      {}
    ]
    }
 ]
