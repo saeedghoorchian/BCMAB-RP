@@ -1,7 +1,7 @@
 [
-   {"algo": "BCMABRP", "params": [{"nu": 0.5}]},
-   {"algo": "CBRAP", "params": [{"alpha": 0.5}]},
-   {"algo": "LinearTS", "params": [{"nu": 0.5}]},
-   {"algo": "LinUCB", "params": [{"alpha": 0.5}]},
-   {"algo": "random"}
+   {"algo": "LinearTS", "params": [{"nu": 0.3}]},
+   {"algo": "LinUCB", "params": [{"alpha": 0.6}]},
+   {"algo": "E-Greedy", "params": [{"epsilon": 0.2}]},
+   {"algo": "UCB", "params": [{"alpha": 0.2}]},
+   {"algo": "RandomPolicy", "params": []}
 ]
