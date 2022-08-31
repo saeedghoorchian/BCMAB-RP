@@ -20,4 +20,4 @@ scontrol show job $SLURM_JOB_ID
 
 source /home/maghsudi/ekortukov80/.bashrc
 conda activate bandit_env
-yes Y | python 2_preprocess_jester.py
+yes Y | python ../2_preprocess_jester.py

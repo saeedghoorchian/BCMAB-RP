@@ -7,8 +7,8 @@
 # time in minutes
 #SBATCH --time=2440
 
-#SBATCH --output=log/5_run_linucb.log
-#SBATCH --error=log/5_run_linucb.err
+#SBATCH --output=log/04_run_linear_ts.log
+#SBATCH --error=log/04_run_linear_ts.log
 
 #SBATCH --mail-type=END
 #SBATCH --mail-user=elephunker1@gmail.com
@@ -19,4 +19,4 @@ scontrol show job $SLURM_JOB_ID
 
 source /home/maghsudi/ekortukov80/.bashrc
 conda activate bandit_env
- python 4_tune_parameters.py --data movielens --trials 100000 --dimension 15 --num-rep 5 --config config/linucb.json
+ python ../4_tune_parameters.py --data movielens --trials 100000 --dimension 15 --num-rep 5 --config config/linearts.json

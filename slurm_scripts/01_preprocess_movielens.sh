@@ -16,4 +16,4 @@ scontrol show job $SLURM_JOB_ID
 
 source /home/maghsudi/ekortukov80/.bashrc
 conda activate bandit_env
-python 1_preprocess_movielens.py 
+python ../1_preprocess_movielens.py
