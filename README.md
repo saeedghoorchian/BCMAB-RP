@@ -86,3 +86,21 @@ and run:
 ```
 python 4_tune_parameters.py -t 1000 -d 30 --num-rep 3 --data movielens --config config/bcmabrp.json
 ```
+
+## Jester
+Jester dataset comes prepackaged inside the [scikit-surprise](https://surpriselib.com/) package that we have already installed
+in the [Getting Started](https://github.com/guchis/reduction_bandits#setup-the-environment) part. So to download the data and create all needed files just run:
+```
+python 2_preprocess_jester.py 
+```
+
+Then you can run the evaluation for 1000 timesteps with reduction matrix of dimension 30 and averaging results of every policy over 3 runs:
+```
+python 3_run_evaluation.py -t 1000 -d 30 --num-rep 3 --data jester
+```
+
+To tune the hyperparameters of a policy create or edit a corresponding [json config file](https://github.com/guchis/reduction_bandits/blob/main/config/bcmabrp.json)
+and run:
+```
+python 4_tune_parameters.py -t 1000 -d 30 --num-rep 3 --data jester --config config/bcmabrp.json
+```

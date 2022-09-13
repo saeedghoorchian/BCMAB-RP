@@ -1,3 +1,4 @@
+import os
 import random
 import numpy as np
 import pandas as pd
@@ -27,6 +28,8 @@ def make_user_stream(user_features, times):
 
 
 def main_data():
+    os.makedirs(f"{PROJECT_DIR}/dataset/jester", exist_ok=True)
+
     jokes = Dataset.load_builtin(name='jester')
     trainset, testset = train_test_split(jokes, test_size=0.2)
 
