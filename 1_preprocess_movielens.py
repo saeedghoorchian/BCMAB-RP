@@ -97,7 +97,8 @@ def main_data():
     for i in range(trainset.n_items):
         idx.append(trainset.to_raw_iid(i))
 
-    qi_all = algorithm.qi
+    # SVD returns memory-views (cython), hence asarray calls.
+    qi_all = np.asarray(algorithm.qi)
 
     action_features = pd.DataFrame(data=qi_all)
     action_features.insert(0, 'movieid', idx)  # action_features["MovieID"] = idx
