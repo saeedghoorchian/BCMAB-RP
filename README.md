@@ -62,6 +62,27 @@ and run:
 python 4_tune_parameters.py -t 1000 -d 30 --num-rep 3 --data amazon --config config/bcmabrp.json
 ```
 
+## MovieLens
 
+Download and unzip the MovieLens 10M dataset:
+```
+curl "https://files.grouplens.org/datasets/movielens/ml-10m.zip" --create-dirs -o "dataset/movielens/ml-10m.zip"
+unzip -j dataset/movielens/ml-10m.zip -d dataset/movielens
+```
+**Note**: You can use other versions of the MovieLens dataset as well, as long as they contain movies.dat and ratings.dat files.
 
+Preprocess the data (create user and action contexts and reward vectors):
+```
+python 1_preprocess_movielens.py
+```
 
+Run the evaluation for 1000 timesteps with reduction matrix of dimension 30 and averaging results of every policy over 3 runs:
+```
+python 3_run_evaluation.py -t 1000 -d 30 --num-rep 3 --data movielens
+```
+
+To tune the hyperparameters of a policy create or edit a corresponding [json config file](https://github.com/guchis/reduction_bandits/blob/main/config/bcmabrp.json)
+and run:
+```
+python 4_tune_parameters.py -t 1000 -d 30 --num-rep 3 --data movielens --config config/bcmabrp.json
+```
