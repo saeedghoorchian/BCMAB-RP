@@ -1,3 +1,4 @@
+import argparse
 import numpy as np
 import pandas as pd
 import random
@@ -9,7 +10,7 @@ from config.cofig import PROJECT_DIR, AMAZON_CONTEXT_DIMENSION
 random.seed(42)
 
 
-AMAZON_RATINGS_PATH = f"{PROJECT_DIR}/dataset/amazon/Video_Games.csv"
+DEFAULT_AMAZON_RATINGS_PATH = f"{PROJECT_DIR}/dataset/amazon/Video_Games.csv"
 AMAZON_NUMBER_OF_ACTIONS = 100
 
 
@@ -39,9 +40,9 @@ def create_actions_users_and_rewards(ratings_df):
     return actions, user_stream, reward_list
 
 
-def preprocess_amazon_data():
+def preprocess_amazon_data(amazon_ratings_path):
     """Use surprise library to create user and item features and rewards from the original amazon ratings data."""
-    ratings_df = pd.read_csv(AMAZON_RATINGS_PATH, names=["item_id", "user_id", "rating", "timestamp"])
+    ratings_df = pd.read_csv(amazon_ratings_path, names=["item_id", "user_id", "rating", "timestamp"])
 
     actions, user_stream, reward_list = create_actions_users_and_rewards(ratings_df)
 
@@ -90,4 +91,15 @@ def preprocess_amazon_data():
 
 
 if __name__ == "__main__":
-    preprocess_amazon_data()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-d",
+        "--data-path",
+        type=str,
+        help="Path to a csv file containing Amazon user ratings.\n"
+             "Must contain columns 'item_id', 'user_id', 'rating', 'timestamp' in that order.",
+        required=True,
+    )
+    args = parser.parse_args()
+
+    preprocess_amazon_data(args.data_path)

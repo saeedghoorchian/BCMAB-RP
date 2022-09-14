@@ -31,7 +31,7 @@ curl "http://deepyeti.ucsd.edu/jianmo/amazon/categoryFilesSmall/Video_Games.csv"
 ```
 Preprocess the data (create context vectors and rewards):
 ```
-python 5_preprocess_amazon.py
+python 5_preprocess_amazon.py --data-path dataset/amazon/Video_Games.csv
 ```
 Run the evaluation for 1000 timesteps with reduction matrix of dimension 30 and averaging results of every policy over 3 runs:
 ```
