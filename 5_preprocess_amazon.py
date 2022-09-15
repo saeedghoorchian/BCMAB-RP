@@ -87,6 +87,8 @@ def preprocess_amazon_data(amazon_ratings_path):
 
     user_features = pd.DataFrame(data=pu_all)
     user_features.insert(loc=0, column='user_id', value=trainset_user_ids)
+    # Only save user features for those users that are present in the experiment.
+    user_features = user_features[user_features.user_id.isin(set(user_stream))]
     user_features.to_csv(f"{PROJECT_DIR}/dataset/amazon/user_features.csv", index=False)
 
 
