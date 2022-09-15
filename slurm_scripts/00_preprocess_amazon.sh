@@ -1,12 +1,14 @@
 #!/bin/bash
+#SBATCH --partition cpu-short
 #SBATCH --cpus-per-task=1
 #SBATCH --nodes=1
 #SBATCH --tasks-per-node=1
+#SBATCH --mem=100G 
 # time in minutes
-#SBATCH --time=5
+#SBATCH --time=120
 
 #SBATCH --output=log/0_preprocess_amazon.log
-#SBATCH --error=log/1_preprocess_amazon.err
+#SBATCH --error=log/0_preprocess_amazon.err
 
 #SBATCH --mail-type=END
 #SBATCH --mail-user=elephunker1@gmail.com

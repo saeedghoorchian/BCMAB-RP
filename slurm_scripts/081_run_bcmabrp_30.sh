@@ -7,8 +7,8 @@
 # time in minutes
 #SBATCH --time=2440
 
-#SBATCH --output=log/081_30_$1.log
-#SBATCH --error=log/081_30_$1.err
+#SBATCH --output=log/081_30.log
+#SBATCH --error=log/081_30.err
 
 #SBATCH --mail-type=END
 #SBATCH --mail-user=elephunker1@gmail.com
@@ -19,4 +19,4 @@ scontrol show job $SLURM_JOB_ID
 
 source /home/maghsudi/ekortukov80/.bashrc
 conda activate bandit_env
- python ../4_tune_parameters.py --data movielens --trials 100000 --dimension 12 --num-rep 5 --config config/bcmabrp$1.json
+ python ../4_tune_parameters.py --data amazon --trials 50000 --dimension 30 --num-rep 1 --config config/bcmabrp4.json

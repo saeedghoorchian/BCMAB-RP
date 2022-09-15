@@ -6,7 +6,7 @@
 #SBATCH --nodes=1
 # time in minutes
 #SBATCH --time=2440
-
+#SBATCH --mem=50G
 #SBATCH --output=log/081_15.log
 #SBATCH --error=log/081_15.err
 
@@ -19,4 +19,4 @@ scontrol show job $SLURM_JOB_ID
 
 source /home/maghsudi/ekortukov80/.bashrc
 conda activate bandit_env
- python ../4_tune_parameters.py --data movielens --trials 100000 --dimension 6 --num-rep 5 --config config/bcmabrp.json
+ python ../4_tune_parameters.py --data amazon --trials 50000 --dimension 15 --num-rep 1 --config config/bcmabrp4.json
