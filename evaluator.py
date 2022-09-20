@@ -4,10 +4,11 @@ import json
 
 from data_loading import get_amazon_data, get_jester_data, get_movielens_data
 from evaluation import evaluate_policy_on_amazon, evaluate_policy_on_jester, evaluate_policy_on_movielens
+from evaluation import evaluate_policy_on_amazon_new
 from policies import policy_generation
 
 
-def run_evaluation(trials, num_rep, reduct_matrix, config_file, dataset_type):
+def run_evaluation(trials, num_rep, reduct_matrix, config_file, dataset_type, feature_flag):
     print(f"Running each algorithm for {num_rep} repetitions")
 
     with open(config_file, "r") as f:
@@ -46,9 +47,14 @@ def run_evaluation(trials, num_rep, reduct_matrix, config_file, dataset_type):
 
                 if dataset_type == "amazon":
                     actions, action_features, user_stream, user_features, reward_list = data
-                    seq_reward = evaluate_policy_on_amazon(
-                        policy, times, actions, action_features, user_stream, user_features, reward_list
-                    )
+                    if not feature_flag:
+                        seq_reward = evaluate_policy_on_amazon(
+                            policy, times, actions, action_features, user_stream, user_features, reward_list
+                        )
+                    else:
+                        seq_reward = evaluate_policy_on_amazon_new(
+                            policy, times, actions, action_features, user_stream, user_features, reward_list
+                        )
                 elif dataset_type == "jester":
                     top_jokes, reward_list, actions, action_features, user_features, user_stream = data
                     seq_reward = evaluate_policy_on_jester(

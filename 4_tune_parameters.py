@@ -74,6 +74,15 @@ if __name__ == "__main__":
         help="Which data to use, 'amazon', 'movielens' or 'jester'",
     )
 
+    parser.add_argument(
+        "-f",
+        "--feature-flag",
+        dest="feature_flag",
+        action="store_true",
+        default=False,
+        help="General feature flag, used to test new features",
+    )
+
     args = parser.parse_args()
 
     if args.dataset_type not in ["amazon", "movielens", "jester"]:
@@ -83,7 +92,7 @@ if __name__ == "__main__":
 
     timeBegin = timeit.default_timer()
     evaluation_results = run_evaluation(
-        args.trials, args.num_rep, reduct_matrix, args.config, dataset_type=args.dataset_type
+        args.trials, args.num_rep, reduct_matrix, args.config, dataset_type=args.dataset_type, feature_flag=args.feature_flag
     )
 
     print("Saving results")
