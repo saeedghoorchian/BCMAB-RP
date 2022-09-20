@@ -30,6 +30,4 @@ def policy_generation(bandit, reduct_matrix, params):
     elif bandit == 'RandomPolicy':
         policy = RandomPolicy()
 
-    policy.initialization()
-
     return policy

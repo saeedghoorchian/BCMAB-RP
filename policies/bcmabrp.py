@@ -45,14 +45,7 @@ class BCMABRP:
 
         self.name = f"BCMABRP (nu={self.nu})"
 
-    def update_history(self, hst):  # (context, recommendatin_id)
-        self.history_memory.append(hst)
-        # return self.history_memory
-
-    def update_model_param(self, param):  # (B, f, inv_B)
-        self.model_param_memory.append(param)
-
-    def initialization(self):
+        # Initialization
         B = self.lambd * np.identity(self.red_dim)
         # psi_hat = np.zeros((self.red_dim, 1))
         f = np.zeros((self.red_dim, 1))
@@ -60,6 +53,13 @@ class BCMABRP:
         # print(self.model_param_memory)
         self.update_model_param((B, f, inv_B))
         # print(self.model_param_memory)
+
+    def update_history(self, hst):  # (context, recommendatin_id)
+        self.history_memory.append(hst)
+        # return self.history_memory
+
+    def update_model_param(self, param):  # (B, f, inv_B)
+        self.model_param_memory.append(param)
 
     def get_score(self, context, trial):
         action_ids = list(six.viewkeys(context))

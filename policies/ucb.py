@@ -15,9 +15,6 @@ class UCB:
         self.q = None  # average reward for each arm
         self.n = None  # number of times each arm was chosen
 
-    def initialization(self):
-        pass
-
     def update_history(self, hst):  # recommendation_id
         self.history_memory.append(hst)
 

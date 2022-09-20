@@ -18,14 +18,7 @@ class CBRAP:
 
         self.name = f"CBRAP (alpha={self.alpha})"
 
-    def update_history(self, hst):  # (context, recommendatin_id)
-        self.history_memory.append(hst)
-        # return self.history_memory
-
-    def update_model_param(self, param):  # (A, b, inv_A)
-        self.model_param_memory.append(param)
-
-    def initialization(self):
+        # Initialization
         A = np.identity(self.red_dim)
         # theta = np.zeros((self.red_dim, 1))
         b = np.zeros((self.red_dim, 1))
@@ -33,6 +26,13 @@ class CBRAP:
         # print(self.model_param_memory)
         self.update_model_param((A, b, inv_A))
         # print(self.model_param_memory)
+
+    def update_history(self, hst):  # (context, recommendatin_id)
+        self.history_memory.append(hst)
+        # return self.history_memory
+
+    def update_model_param(self, param):  # (A, b, inv_A)
+        self.model_param_memory.append(param)
 
     def get_score(self, context, trial):
         action_ids = list(six.viewkeys(context))

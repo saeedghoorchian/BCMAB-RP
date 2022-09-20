@@ -15,17 +15,17 @@ class LinUCB:
 
         self.name = f"LinUCB (alpha={self.alpha})"
 
+        # Initialization
+        A = np.identity(self.context_dimension)
+        b = np.zeros((self.context_dimension, 1))
+        inv_A = np.linalg.inv(A)
+        self.update_model_param((A, b, inv_A))
+
     def update_history(self, hst):  # (context, recommendatin_id)
         self.history_memory.append(hst)
 
     def update_model_param(self, param):  # (A, b, inv_A)
         self.model_param_memory.append(param)
-
-    def initialization(self):
-        A = np.identity(self.context_dimension)
-        b = np.zeros((self.context_dimension, 1))
-        inv_A = np.linalg.inv(A)
-        self.update_model_param((A, b, inv_A))
 
     def get_score(self, context, trial):
         action_ids = list(six.viewkeys(context))

@@ -42,14 +42,7 @@ class LinearTS:
 
         self.name = f"LinearTS (nu={self.nu})"
 
-    def update_history(self, hst):  # (context, recommendatin_id)
-        self.history_memory.append(hst)
-        # return self.history_memory
-
-    def update_model_param(self, param):  # (B, f, inv_B)
-        self.model_param_memory.append(param)
-
-    def initialization(self):
+        # Initialization
         B = np.identity(self.context_dimension)
         # mu_hat = np.zeros((self.context_dimension, 1))
         f = np.zeros((self.context_dimension, 1))
@@ -57,6 +50,13 @@ class LinearTS:
         # print(self.model_param_memory)
         self.update_model_param((B, f, inv_B))
         # print(self.model_param_memory)
+
+    def update_history(self, hst):  # (context, recommendatin_id)
+        self.history_memory.append(hst)
+        # return self.history_memory
+
+    def update_model_param(self, param):  # (B, f, inv_B)
+        self.model_param_memory.append(param)
 
     def get_score(self, context, trial):
         action_ids = list(six.viewkeys(context))
