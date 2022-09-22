@@ -121,3 +121,75 @@ def evaluate_policy_on_amazon_new(policy, times, actions, action_features, user_
         t = t + 1
 
     return seq_reward
+
+
+def create_offline_dataset(times, actions, action_features, user_stream, user_features, reward_list):
+    """Create a dataset for evaluation of offline algorithms (CTR prediction)"""
+    action_context_dict = {}
+    for action_id in actions:
+        action_context = np.array(action_features[action_features['item_id'] == action_id])[0][1:]
+        action_context_dict[action_id] = action_context.astype(np.float64)
+        action_context_len = len(action_context)
+
+    user_features = user_features.set_index("user_id")
+    user_features_array = user_features.to_numpy(dtype=np.float32)
+
+    # This is an optimization because pandas indexing is slower.
+    user_id_to_index = {
+        uid: ind for ind, uid in enumerate(user_features.index)
+    }
+
+    reward_list = reward_list.set_index("user_id")
+    watched_list_series = reward_list.groupby('user_id')['item_id'].agg(set=set).set
+    user_id_to_watched_list_index = {
+        uid: ind for ind, uid in enumerate(watched_list_series.index)
+    }
+
+    contexts = np.zeros(shape=(times, len(actions), user_features.shape[1] + action_context_len))
+    rewards = np.zeros(shape=(times, len(actions), 1))
+
+    t = 0
+    user_ind = 0
+    while t < times:
+        user_ind += 1
+        user_t = user_stream.iloc[user_ind, 0]
+
+        try:
+            user_feature_index = user_id_to_index[user_t]
+        except KeyError:
+            # User with no features (see preprocessing code for details).
+            continue
+        user_feature = user_features_array[user_feature_index]
+
+        # Create full context by concatenating user and item features.
+        full_context_t = np.asarray(
+            [
+                np.append(action_context_dict[action_id], user_feature)
+                for action_id in actions
+            ]
+        )  # (actions, full_context_dim)
+
+        try:
+            watched_list_index = user_id_to_watched_list_index[user_t]
+            watched_list = watched_list_series.iloc[watched_list_index]
+        except KeyError:
+            watched_list = set()
+
+        rewards_t = np.asmatrix(
+            [
+                1 if action_id in watched_list else 0
+                for action_id in actions
+            ]
+        ).T
+
+        contexts[t] = full_context_t
+        rewards[t] = rewards_t
+
+        if t % 1000 == 0:
+            print(t)
+
+        t = t + 1
+    contexts = np.concatenate(contexts, axis=0)
+    rewards = np.concatenate(rewards, axis=0)
+
+    return contexts, rewards
