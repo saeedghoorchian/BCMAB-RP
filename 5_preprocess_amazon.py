@@ -35,20 +35,24 @@ def create_actions_users_and_rewards(ratings_df):
     print(f"Experiments has {len(actions)} items,\n{len(user_stream)} users\nof which {len(unique_users)} are unique.")
 
     top_ratings["reward"] = np.where(top_ratings["rating"] >= 3.0, 1, 0)
-    reward_list = top_ratings[["user_id", "item_id", "reward"]]
+    reward_list = top_ratings[["user_id", "item_id", "reward", "rating"]]
     reward_list = reward_list[reward_list['reward'] == 1]
-    return actions, user_stream, reward_list
+
+    # Used for NDCG computation
+    ratings_list = top_ratings[["user_id", "item_id", "rating"]]
+    return actions, user_stream, reward_list, ratings_list
 
 
 def preprocess_amazon_data(amazon_ratings_path):
     """Use surprise library to create user and item features and rewards from the original amazon ratings data."""
     ratings_df = pd.read_csv(amazon_ratings_path, names=["item_id", "user_id", "rating", "timestamp"])
 
-    actions, user_stream, reward_list = create_actions_users_and_rewards(ratings_df)
+    actions, user_stream, reward_list, ratings_list = create_actions_users_and_rewards(ratings_df)
 
     user_stream.to_csv(f"{PROJECT_DIR}/dataset/amazon/user_stream.csv", sep='\t', index=False)
     pd.DataFrame(actions, columns=["item_id"]).to_csv(f"{PROJECT_DIR}/dataset/amazon/actions.csv", sep='\t', index=False)
     reward_list.to_csv(f"{PROJECT_DIR}/dataset/amazon/reward_list.csv", sep='\t', index=False)
+    ratings_list.to_csv(f"{PROJECT_DIR}/dataset/amazon/ratings_list.csv", sep='\t', index=False)
 
     # Use SVD to create user and item features.
     full_dataset = sp.Dataset.load_from_df(
@@ -60,7 +64,7 @@ def preprocess_amazon_data(amazon_ratings_path):
     print(f"User-rating matrix filled to total ratio: {trainset.n_ratings / (trainset.n_items * trainset.n_users)}")
 
     # Dividing the context size by half because user and item context will be concatenated during evaluation.
-    svd = sp.SVD(n_factors=AMAZON_CONTEXT_DIMENSION // 2, n_epochs=10)
+    svd = sp.SVD(n_factors=AMAZON_CONTEXT_DIMENSION // 2, n_epochs=50)
     svd.fit(trainset)
 
     predictions = svd.test(testset)
@@ -68,6 +72,7 @@ def preprocess_amazon_data(amazon_ratings_path):
 
     # SVD returns memory-views (cython), hence asarray calls.
     pu_all, qi_all = np.asarray(svd.pu), np.asarray(svd.qi)
+    bu_all, bi_all = np.asarray(svd.bu), np.asarray(svd.bi)
 
     trainset_item_ids = [trainset.to_raw_iid(i) for i in range(trainset.n_items)]
     items_that_have_features_set = set(trainset_item_ids)
@@ -77,6 +82,11 @@ def preprocess_amazon_data(amazon_ratings_path):
     action_features = pd.DataFrame(data=qi_all)
     action_features.insert(loc=0, column='item_id', value=trainset_item_ids)
     action_features.to_csv(f"{PROJECT_DIR}/dataset/amazon/action_features.csv", index=False)
+
+    action_biases = pd.DataFrame(data=bi_all)
+    action_biases.insert(loc=0, column='item_id', value=trainset_item_ids)
+    action_biases.to_csv(f"{PROJECT_DIR}/dataset/amazon/action_biases.csv", index=False)
+
 
     trainset_user_ids = [trainset.to_raw_uid(i) for i in range(trainset.n_users)]
     users_that_have_features_set = set(trainset_user_ids)
@@ -91,6 +101,11 @@ def preprocess_amazon_data(amazon_ratings_path):
     user_features = user_features[user_features.user_id.isin(set(user_stream))]
     user_features.to_csv(f"{PROJECT_DIR}/dataset/amazon/user_features.csv", index=False)
 
+    user_biases = pd.DataFrame(data=bu_all)
+    user_biases.insert(loc=0, column='user_id', value=trainset_user_ids)
+    # Only save user biases for those users that are present in the experiment.
+    user_biases = user_biases[user_biases.user_id.isin(set(user_stream))]
+    user_biases.to_csv(f"{PROJECT_DIR}/dataset/amazon/user_biases.csv", index=False)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

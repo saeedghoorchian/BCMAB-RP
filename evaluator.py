@@ -46,14 +46,17 @@ def run_evaluation(trials, num_rep, reduct_matrix, config_file, dataset_type, fe
                 print(f"{policy.name} repetition {j+1}")
 
                 if dataset_type == "amazon":
-                    actions, action_features, user_stream, user_features, reward_list = data
+                    (
+                        actions, action_features, action_biases, user_stream, user_features, user_biases, reward_list, ratings_list
+                    ) = data
                     if not feature_flag:
                         seq_reward = evaluate_policy_on_amazon(
                             policy, times, actions, action_features, user_stream, user_features, reward_list
                         )
                     else:
                         seq_reward = evaluate_policy_on_amazon_new(
-                            policy, times, actions, action_features, user_stream, user_features, reward_list
+                            policy, times, actions, action_features, action_biases, user_stream,
+                            user_features, user_biases, reward_list, ratings_list
                         )
                 elif dataset_type == "jester":
                     top_jokes, reward_list, actions, action_features, user_features, user_stream = data

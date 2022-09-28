@@ -59,7 +59,7 @@ class LinUCB:
         estimated_reward, uncertainty, score = self.get_score(context, trial)
         recommendation_id = max(score, key=score.get)
         self.update_history((context, recommendation_id))
-        return recommendation_id
+        return recommendation_id, score
 
     def reward(self, reward_t):
         context = self.history_memory[0][0]
