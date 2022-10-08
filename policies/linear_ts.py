@@ -5,10 +5,10 @@ import numpy as np
 
 class LinearTS:
 
-    def __init__(self, context_dimension, delta=0.5, R=0.01, epsilon=0.5, nu=0.5):
+    def __init__(self, context_dimension, delta=0.5, R=0.01, epsilon=0.5, nu=0.5, seed=None):
         super(LinearTS, self).__init__()
         self.context_dimension = context_dimension
-        self.random_state = np.random.RandomState()
+        self.random_state = np.random.RandomState(seed)
 
         # # 0 < delta < 1
         # if not isinstance(delta, float):
@@ -91,7 +91,7 @@ class LinearTS:
         estimated_reward, uncertainty, score = self.get_score(context, trial)
         recommendation_id = max(score, key=score.get)
         self.update_history((context, recommendation_id))
-        return recommendation_id
+        return recommendation_id, score
 
     # def reward(self, history_m, rewards):
     def reward(self, reward_t):

@@ -5,7 +5,7 @@ import numpy as np
 
 class CBRAP:
 
-    def __init__(self, context_dimension, red_dim, reduct_matrix, alpha):
+    def __init__(self, context_dimension, red_dim, reduct_matrix, alpha, scale=True):
         super(CBRAP, self).__init__()
         self.context_dimension = context_dimension
         self.red_dim = red_dim
@@ -14,7 +14,12 @@ class CBRAP:
         self.model_param_memory = deque(maxlen=1)
         self.history_memory = deque(maxlen=1)
 
-        self.reduction_matrix = reduct_matrix
+        if scale:
+            self.reduction_matrix = np.zeros(reduct_matrix.shape)
+            for k in range(red_dim):
+                self.reduction_matrix[:, k] = reduct_matrix[:, k] / np.linalg.norm(reduct_matrix[:, k])
+        else:
+            self.reduction_matrix = reduct_matrix
 
         self.name = f"CBRAP (alpha={self.alpha})"
 
@@ -74,7 +79,7 @@ class CBRAP:
         estimated_reward, uncertainty, score = self.get_score(context, trial)
         recommendation_id = max(score, key=score.get)
         self.update_history((context, recommendation_id))
-        return recommendation_id
+        return recommendation_id, score
 
     # def reward(self, history_m, rewards):
     def reward(self, reward_t):

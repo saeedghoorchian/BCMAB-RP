@@ -40,15 +40,17 @@ class EGreedy:
         p = np.random.rand()
         if p > self.epsilon:
             # Choose arm with best estimated reward with probability (1-epsilon)
-            estimated_reward = self.get_score(context, trial)
-            recommendation_id = max(estimated_reward, key=estimated_reward.get)
+            score = self.get_score(context, trial)
+            recommendation_id = max(score, key=score.get)
         else:
             # Choose random arm with probability epsilon
-            actions = list(context.keys())
-            recommendation_id = actions[np.random.randint(0, len(actions) - 1)]
+            score = {}
+            for action_id in context.keys():
+                score[action_id] = np.random.uniform(low=0, high=1)
+            recommendation_id = max(score, key=score.get)
 
         self.update_history(recommendation_id)
-        return recommendation_id
+        return recommendation_id, score
 
     def reward(self, reward_t):
         recommendation_id = self.history_memory[0]

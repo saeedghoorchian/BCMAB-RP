@@ -4,11 +4,13 @@ import numpy as np
 
 
 class BCMABRP:
-    def __init__(self, context_dimension, red_dim, reduct_matrix, delta=0.5, R=0.01, lambd=0.5, nu=0.5):
+    def __init__(
+            self, context_dimension, red_dim, reduct_matrix, delta=0.5, R=0.01, lambd=0.5, nu=0.5, seed=None, scale=False,
+    ):
         super(BCMABRP, self).__init__()
         self.context_dimension = context_dimension
         self.red_dim = red_dim
-        self.random_state = np.random.RandomState()
+        self.random_state = np.random.RandomState(seed)
         self.lambd = lambd
 
         # # 0 < delta < 1
@@ -41,7 +43,13 @@ class BCMABRP:
         self.model_param_memory = deque(maxlen=1)
         self.history_memory = deque(maxlen=1)
 
-        self.reduction_matrix = reduct_matrix
+        assert reduct_matrix.shape == (context_dimension, red_dim)
+        if scale:
+            self.reduction_matrix = np.zeros(reduct_matrix.shape)
+            for k in range(red_dim):
+                self.reduction_matrix[:, k] = reduct_matrix[:, k] / np.linalg.norm(reduct_matrix[:, k])
+        else:
+            self.reduction_matrix = reduct_matrix
 
         self.name = f"BCMABRP (nu={self.nu})"
 
@@ -95,7 +103,7 @@ class BCMABRP:
         estimated_reward, uncertainty, score = self.get_score(context, trial)
         recommendation_id = max(score, key=score.get)
         self.update_history((context, recommendation_id))
-        return recommendation_id
+        return recommendation_id, score
 
     # def reward(self, history_m, rewards):
     def reward(self, reward_t):
