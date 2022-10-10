@@ -3,7 +3,7 @@ import pandas as pd
 from config.cofig import PROJECT_DIR
 
 
-def get_amazon_data():
+def get_amazon_data(threshold=None):
     actions = list(
         pd.read_csv(f"{PROJECT_DIR}/dataset/amazon/actions.csv", sep="\t", header=0, engine="c")["item_id"]
     )
@@ -16,7 +16,10 @@ def get_amazon_data():
     user_features = pd.read_csv(f"{PROJECT_DIR}/dataset/amazon/user_features.csv")
     user_biases = pd.read_csv(f"{PROJECT_DIR}/dataset/amazon/user_biases.csv")
 
-    reward_list = pd.read_csv(f"{PROJECT_DIR}/dataset/amazon/reward_list.csv", sep="\t", header=0, engine="c")
+    if threshold is None:
+        reward_list = pd.read_csv(f"{PROJECT_DIR}/dataset/amazon/reward_list.csv", sep="\t", header=0, engine="c")
+    else:
+        reward_list = pd.read_csv(f"{PROJECT_DIR}/dataset/amazon/reward_list_{threshold}.csv", sep="\t", header=0, engine="c")
 
     ratings_list = pd.read_csv(f"{PROJECT_DIR}/dataset/amazon/ratings_list.csv", sep="\t", header=0, engine="c")
 

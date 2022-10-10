@@ -13,6 +13,7 @@ random.seed(42)
 DEFAULT_AMAZON_RATINGS_PATH = f"{PROJECT_DIR}/dataset/amazon/Video_Games.csv"
 AMAZON_NUMBER_OF_ACTIONS = 100
 
+THRESHOLD = 5
 
 def create_actions_users_and_rewards(ratings_df):
     """Preprocess the original dataframe to extract actions, users and rewards from it.
@@ -34,7 +35,10 @@ def create_actions_users_and_rewards(ratings_df):
     unique_users = user_stream.unique()
     print(f"Experiments has {len(actions)} items,\n{len(user_stream)} users\nof which {len(unique_users)} are unique.")
 
-    top_ratings["reward"] = np.where(top_ratings["rating"] >= 3.0, 1, 0)
+    if THRESHOLD is not None:
+        top_ratings["reward"] = np.where(top_ratings["rating"] >= THRESHOLD, 1, 0)
+    else:
+        top_ratings["reward"] = np.where(top_ratings["rating"] >= 3.0, 1, 0)
     reward_list = top_ratings[["user_id", "item_id", "reward", "rating"]]
     reward_list = reward_list[reward_list['reward'] == 1]
 
@@ -51,7 +55,10 @@ def preprocess_amazon_data(amazon_ratings_path):
 
     user_stream.to_csv(f"{PROJECT_DIR}/dataset/amazon/user_stream.csv", sep='\t', index=False)
     pd.DataFrame(actions, columns=["item_id"]).to_csv(f"{PROJECT_DIR}/dataset/amazon/actions.csv", sep='\t', index=False)
-    reward_list.to_csv(f"{PROJECT_DIR}/dataset/amazon/reward_list.csv", sep='\t', index=False)
+    if THRESHOLD is not None:
+        reward_list.to_csv(f"{PROJECT_DIR}/dataset/amazon/reward_list_{THRESHOLD}.csv", sep='\t', index=False)
+    else:
+        reward_list.to_csv(f"{PROJECT_DIR}/dataset/amazon/reward_list.csv", sep='\t', index=False)
     ratings_list.to_csv(f"{PROJECT_DIR}/dataset/amazon/ratings_list.csv", sep='\t', index=False)
 
     # Use SVD to create user and item features.
