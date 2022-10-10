@@ -4,7 +4,7 @@ import json
 
 from data_loading import get_amazon_data, get_jester_data, get_movielens_data
 from evaluation import evaluate_policy_on_amazon, evaluate_policy_on_jester, evaluate_policy_on_movielens
-from evaluation import evaluate_policy_on_amazon_new
+from evaluation import evaluate_policy
 from policies import policy_generation
 
 
@@ -54,15 +54,24 @@ def run_evaluation(trials, num_rep, reduct_matrix, config_file, dataset_type, fe
                             policy, times, actions, action_features, user_stream, user_features, reward_list
                         )
                     else:
-                        seq_reward = evaluate_policy_on_amazon_new(
+                        seq_reward, seq_ndcg = evaluate_policy(
                             policy, times, actions, action_features, action_biases, user_stream,
                             user_features, user_biases, reward_list, ratings_list
                         )
                 elif dataset_type == "jester":
-                    top_jokes, reward_list, actions, action_features, user_features, user_stream = data
-                    seq_reward = evaluate_policy_on_jester(
-                        policy, times, actions, action_features, user_stream, user_features, reward_list
-                    )
+                    (
+                        actions, action_features, action_biases, user_stream, user_features, user_biases, reward_list, ratings_list
+                    ) = data
+                    if not feature_flag:
+                        seq_reward = evaluate_policy_on_jester(
+                            policy, times, actions, action_features, user_stream, user_features, reward_list
+                        )
+                    else:
+                        seq_reward, seq_ndcg = evaluate_policy(
+                            policy, times, actions, action_features, action_biases, user_stream,
+                            user_features, user_biases, reward_list, ratings_list
+                        )
+
                 elif dataset_type == "movielens":
                     streaming_batch, user_feature, actions, reward_list, action_context, action_features = data
                     seq_reward = evaluate_policy_on_movielens(policy, times, streaming_batch, user_feature,

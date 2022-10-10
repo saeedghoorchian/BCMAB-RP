@@ -6,7 +6,7 @@ def evaluate_policy_on_jester(policy, times, actions, action_features, user_stre
 
     action_context_dict = {}
     for action_id in actions:  # joke_id :)
-        action_context_dict[action_id] = np.array(action_features[action_features['jokeid'] == action_id])[0][1:]
+        action_context_dict[action_id] = np.array(action_features[action_features['item_id'] == action_id])[0][1:]
 
     rew = 0
     t = 0
@@ -14,7 +14,7 @@ def evaluate_policy_on_jester(policy, times, actions, action_features, user_stre
 
         user_t = user_stream[t]
 
-        feature = np.array(user_features[user_features["userid"] == user_t])[0][1:]
+        feature = np.array(user_features[user_features["user_id"] == user_t])[0][1:]
         full_context = {}
         for action_id in actions:  # movie_id :)
             full_context[action_id] = np.append(action_context_dict[action_id], feature)  # feature
@@ -23,9 +23,9 @@ def evaluate_policy_on_jester(policy, times, actions, action_features, user_stre
 
         action_t = policy.get_action(full_context, t)
 
-        watched_list = np.array(reward_list[reward_list["UserID"] == user_t]["JokeID"])
+        watched_list = np.array(reward_list[reward_list["user_id"] == user_t]["item_id"])
         # print("user_t: " + str(user_t))
-        # print("Data_t: " + str(top_jokes[top_jokes["UserID"] == user_t]))
+        # print("Data_t: " + str(top_jokes[top_jokes["user_id"] == user_t]))
         # print("action_t: " + str(action_t))
         # print("watched_list: " + str(watched_list))
         # watched_list = watched_list.astype(np.int)
