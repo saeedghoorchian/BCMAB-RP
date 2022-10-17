@@ -30,9 +30,10 @@ def create_actions_users_and_rewards(ratings_df):
     # Only consider users that have watched some movies from the considered actions.
     top_ratings = ratings_df[ratings_df["item_id"].isin(actions)]
     top_ratings = top_ratings.sort_values("timestamp", ascending=1)
-    user_stream = top_ratings["user_id"]
+    user_stream = top_ratings[["user_id", "timestamp"]]
+    user_stream.to_csv(f"{PROJECT_DIR}/dataset/amazon/new_user_stream.csv")
 
-    unique_users = user_stream.unique()
+    unique_users = user_stream.user_id.unique()
     print(f"Experiments has {len(actions)} items,\n{len(user_stream)} users\nof which {len(unique_users)} are unique.")
 
     if THRESHOLD is not None:
@@ -53,7 +54,6 @@ def preprocess_amazon_data(amazon_ratings_path):
 
     actions, user_stream, reward_list, ratings_list = create_actions_users_and_rewards(ratings_df)
 
-    user_stream.to_csv(f"{PROJECT_DIR}/dataset/amazon/user_stream.csv", sep='\t', index=False)
     pd.DataFrame(actions, columns=["item_id"]).to_csv(f"{PROJECT_DIR}/dataset/amazon/actions.csv", sep='\t', index=False)
     if THRESHOLD is not None:
         reward_list.to_csv(f"{PROJECT_DIR}/dataset/amazon/reward_list_{THRESHOLD}.csv", sep='\t', index=False)
@@ -98,20 +98,26 @@ def preprocess_amazon_data(amazon_ratings_path):
     trainset_user_ids = [trainset.to_raw_uid(i) for i in range(trainset.n_users)]
     users_that_have_features_set = set(trainset_user_ids)
     users_without_features_counter = sum(
-        [1 for user_id in user_stream.unique() if user_id not in users_that_have_features_set]
+        [1 for user_id in user_stream.user_id.unique() if user_id not in users_that_have_features_set]
     )
     print(f"Users without features: {users_without_features_counter}")
+    # Only save users with features for the experiment.
+    user_stream = user_stream[user_stream.user_id.isin(users_that_have_features_set)]
+
+    # Only save last 100,000 users as we never use more
+    user_stream = user_stream[-100000:]
+    user_stream.to_csv(f"{PROJECT_DIR}/dataset/amazon/user_stream.csv", sep='\t', index=False)
 
     user_features = pd.DataFrame(data=pu_all)
     user_features.insert(loc=0, column='user_id', value=trainset_user_ids)
     # Only save user features for those users that are present in the experiment.
-    user_features = user_features[user_features.user_id.isin(set(user_stream))]
+    user_features = user_features[user_features.user_id.isin(set(user_stream.user_id))]
     user_features.to_csv(f"{PROJECT_DIR}/dataset/amazon/user_features.csv", index=False)
 
     user_biases = pd.DataFrame(data=bu_all)
     user_biases.insert(loc=0, column='user_id', value=trainset_user_ids)
     # Only save user biases for those users that are present in the experiment.
-    user_biases = user_biases[user_biases.user_id.isin(set(user_stream))]
+    user_biases = user_biases[user_biases.user_id.isin(set(user_stream.user_id))]
     user_biases.to_csv(f"{PROJECT_DIR}/dataset/amazon/user_biases.csv", index=False)
 
 if __name__ == "__main__":
