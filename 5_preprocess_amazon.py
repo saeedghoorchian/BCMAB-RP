@@ -13,7 +13,7 @@ random.seed(42)
 DEFAULT_AMAZON_RATINGS_PATH = f"{PROJECT_DIR}/dataset/amazon/Video_Games.csv"
 AMAZON_NUMBER_OF_ACTIONS = 100
 
-THRESHOLD = 5
+THRESHOLD = None
 
 def create_actions_users_and_rewards(ratings_df):
     """Preprocess the original dataframe to extract actions, users and rewards from it.
