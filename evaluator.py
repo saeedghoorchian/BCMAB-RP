@@ -51,16 +51,16 @@ def run_evaluation(trials, num_rep, reduct_matrix, config_file, dataset_type, fe
                     ) = data
                     if not feature_flag:
                         seq_reward = evaluate_policy_on_amazon(
-                            policy, times, actions, action_features, user_stream, user_features, reward_list
+                            policy, times, actions, action_features, true_user_features, user_stream, user_features, reward_list
                         )
                     else:
                         seq_reward, seq_ndcg = evaluate_policy(
                             policy, times, actions, action_features, action_biases, user_stream,
-                            user_features, user_biases, reward_list, ratings_list
+                            true_user_features, user_features, user_biases, reward_list, ratings_list
                         )
                 elif dataset_type == "jester":
                     (
-                        actions, action_features, action_biases, user_stream, user_features, user_biases, reward_list, ratings_list
+                        actions, action_features, action_biases, user_stream, true_user_features, user_features, user_biases, reward_list, ratings_list
                     ) = data
                     if not feature_flag:
                         seq_reward = evaluate_policy_on_jester(
@@ -69,13 +69,21 @@ def run_evaluation(trials, num_rep, reduct_matrix, config_file, dataset_type, fe
                     else:
                         seq_reward, seq_ndcg = evaluate_policy(
                             policy, times, actions, action_features, action_biases, user_stream,
-                            user_features, user_biases, reward_list, ratings_list
+                            true_user_features, user_features, user_biases, reward_list, ratings_list
                         )
 
                 elif dataset_type == "movielens":
-                    streaming_batch, user_feature, actions, reward_list, action_context, action_features = data
-                    seq_reward = evaluate_policy_on_movielens(policy, times, streaming_batch, user_feature,
-                                                  actions, action_features, reward_list)
+                    (
+                        actions, action_features, action_biases, user_stream, user_features, user_biases, reward_list, ratings_list
+                    ) = data
+                    if not feature_flag:
+                        seq_reward = evaluate_policy_on_movielens(policy, times, user_stream, user_features,
+                                                      actions, action_features, reward_list)
+                    else:
+                        seq_reward, seq_ndcg = evaluate_policy(
+                            policy, times, actions, action_features, action_biases, user_stream,
+                            true_user_features, user_features, user_biases, reward_list, ratings_list
+                        )
 
                 time_end = timeit.default_timer()
 

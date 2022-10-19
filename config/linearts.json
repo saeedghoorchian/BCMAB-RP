@@ -1,6 +1,6 @@
 [
    {"algo": "LinearTS", "params": [
-      {"nu": 0.2},
+      {"nu": 0.2}
    ]
    }
 ]

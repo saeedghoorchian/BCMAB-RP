@@ -42,20 +42,25 @@ def feature_extraction(data):
     user_feature = user_feature.drop(['movie_id', 'rating', 'timestamp'], 1)
     user_feature = user_feature.div(user_feature.sum(axis=1), axis=0)
 
-    # streaming_batch: the result for testing bandit algrorithms
+    # user_stream: the result for testing bandit algrorithms
     # Only consider users that have watched some movies from the considered actions.
     top50_data = data[data['movie_id'].isin(actions)]
     top50_data = top50_data.sort_values('timestamp', ascending=1)
-    streaming_batch = top50_data['user_id']
+    user_stream = top50_data[["user_id", "timestamp"]]
+    # Only use users with features.
+    user_stream = user_stream[user_stream.user_id.isin(set(user_feature.index))]
 
-    users_all_exp = streaming_batch[:100000].unique()
+    users_all_exp = user_stream.user_id[:100000].unique()
     print(f"---\nThere are {len(users_all_exp)} unique users in the experiment\n---")
 
     # reward_list: if rating >=3, the user will watch the movie
     top50_data['reward'] = np.where(top50_data['rating'] >= 3, 1, 0)
-    reward_list = top50_data[['user_id', 'movie_id', 'reward']]
+    top50_data = top50_data.rename(columns={'movie_id': "item_id"})
+    reward_list = top50_data[['user_id', 'item_id', 'reward']]
     reward_list = reward_list[reward_list['reward'] == 1]
-    return streaming_batch, user_feature, actions, reward_list
+
+    ratings_list = top50_data[["user_id", "item_id", "rating"]]
+    return user_stream, user_feature, actions, reward_list, ratings_list
 
 
 def main_data():
@@ -69,11 +74,11 @@ def main_data():
     data = pd.merge(rating, movie, on="movie_id")
 
     # extract feature from our data set
-    streaming_batch, user_feature, actions, reward_list = feature_extraction(data)
-    streaming_batch.to_csv(f"{PROJECT_DIR}/dataset/movielens/streaming_batch.csv", sep='\t', index=False)
-    user_feature.to_csv(f"{PROJECT_DIR}/dataset/movielens/user_feature.csv", sep='\t')
-    pd.DataFrame(actions, columns=['movie_id']).to_csv(f"{PROJECT_DIR}/dataset/movielens/actions.csv", sep='\t', index=False)
+    user_stream, true_user_features, actions, reward_list, ratings_list = feature_extraction(data)
+    true_user_features.to_csv(f"{PROJECT_DIR}/dataset/movielens/true_user_features.csv", sep='\t')
+    pd.DataFrame(actions, columns=['item_id']).to_csv(f"{PROJECT_DIR}/dataset/movielens/actions.csv", sep='\t', index=False)
     reward_list.to_csv(f"{PROJECT_DIR}/dataset/movielens/reward_list.csv", sep='\t', index=False)
+    ratings_list.to_csv(f"{PROJECT_DIR}/dataset/movielens/ratings_list.csv", sep='\t', index=False)
 
     action_context = movie[movie['movie_id'].isin(actions)]
     action_context.to_csv(f"{PROJECT_DIR}/dataset/movielens/action_context.csv", sep='\t', index = False)
@@ -90,19 +95,50 @@ def main_data():
 
     # train SVD on 75% of known rates
     trainset, testset = train_test_split(data, test_size=.25)
-    algorithm = SVD(n_factors=100)
-    algorithm.fit(trainset)
+    svd = SVD(n_factors=100)
+    svd.fit(trainset)
 
-    idx = []
+    idx_item = []
     for i in range(trainset.n_items):
-        idx.append(trainset.to_raw_iid(i))
+        idx_item.append(trainset.to_raw_iid(i))
 
     # SVD returns memory-views (cython), hence asarray calls.
-    qi_all = np.asarray(algorithm.qi)
+    pu_all, qi_all = np.asarray(svd.pu), np.asarray(svd.qi)
+    bu_all, bi_all = np.asarray(svd.bu), np.asarray(svd.bi)
 
     action_features = pd.DataFrame(data=qi_all)
-    action_features.insert(0, 'movieid', idx)  # action_features["MovieID"] = idx
-    action_features.to_csv(f"{PROJECT_DIR}/dataset/movielens/action_features_2_CBRAP_BCMABRP.csv", index=False)
+    action_features.insert(loc=0, column='item_id', value=idx_item)  # action_features["MovieID"] = idx
+    action_features.to_csv(f"{PROJECT_DIR}/dataset/movielens/action_features.csv", index=False)
+
+    action_biases = pd.DataFrame(data=bi_all)
+    action_biases.insert(loc=0, column='item_id', value=idx_item)
+    action_biases.to_csv(f"{PROJECT_DIR}/dataset/movielens/action_biases.csv", index=False)
+
+    # Users
+    idx_user = []
+    for i in range(trainset.n_users):
+        idx_user.append(trainset.to_raw_uid(i))
+    idx_user_int = [int(item) for item in idx_user]
+    print(f"#users in train set: {len(idx_user)}")
+
+    user_features = pd.DataFrame(data=pu_all)
+    user_features.insert(0, 'user_id', idx_user_int)
+
+    # Only save user features for those users that are present in the experiment.
+    user_features = user_features[user_features.user_id.isin(set(user_stream["user_id"]))]
+    user_features.to_csv(f"{PROJECT_DIR}/dataset/movielens/user_features.csv", index=False)
+
+    users_that_have_features_set = set(idx_user)
+    # Only save users with features for the experiment.
+    user_stream = user_stream[user_stream.user_id.isin(users_that_have_features_set)]
+
+    user_stream.to_csv(f"{PROJECT_DIR}/dataset/movielens/user_stream.csv", sep='\t', index=False)
+
+    user_biases = pd.DataFrame(data=bu_all)
+    user_biases.insert(loc=0, column='user_id', value=idx_user_int)
+    # Only save user biases for those users that are present in the experiment.
+    user_biases = user_biases[user_biases.user_id.isin(set(user_stream["user_id"]))]
+    user_biases.to_csv(f"{PROJECT_DIR}/dataset/movielens/user_biases.csv", index=False)
 
 
 if __name__ == '__main__':

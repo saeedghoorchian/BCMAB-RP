@@ -20,4 +20,4 @@ def get_jester_data():
 
     user_stream = pd.read_csv(f"{PROJECT_DIR}/dataset/jester/user_stream.csv")
 
-    return actions, action_features, action_biases, user_stream, user_features, user_biases, reward_list, ratings_list
+    return actions, action_features, action_biases, user_stream, user_features, user_features, user_biases, reward_list, ratings_list
