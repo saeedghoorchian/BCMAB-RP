@@ -6,6 +6,8 @@ from surprise.model_selection import train_test_split
 
 from config.cofig import PROJECT_DIR
 
+THRESHOLD = None
+
 
 def movie_preprocessing(movie):
     movie_col = list(movie.columns)
@@ -54,7 +56,10 @@ def feature_extraction(data):
     print(f"---\nThere are {len(users_all_exp)} unique users in the experiment\n---")
 
     # reward_list: if rating >=3, the user will watch the movie
-    top50_data['reward'] = np.where(top50_data['rating'] >= 3, 1, 0)
+    if THRESHOLD is not None:
+        top50_data['reward'] = np.where(top50_data['rating'] >= THRESHOLD, 1, 0)
+    else:
+        top50_data['reward'] = np.where(top50_data['rating'] >= 3, 1, 0)
     top50_data = top50_data.rename(columns={'movie_id': "item_id"})
     reward_list = top50_data[['user_id', 'item_id', 'reward']]
     reward_list = reward_list[reward_list['reward'] == 1]
@@ -77,7 +82,10 @@ def main_data():
     user_stream, true_user_features, actions, reward_list, ratings_list = feature_extraction(data)
     true_user_features.to_csv(f"{PROJECT_DIR}/dataset/movielens/true_user_features.csv", sep='\t')
     pd.DataFrame(actions, columns=['item_id']).to_csv(f"{PROJECT_DIR}/dataset/movielens/actions.csv", sep='\t', index=False)
-    reward_list.to_csv(f"{PROJECT_DIR}/dataset/movielens/reward_list.csv", sep='\t', index=False)
+    if THRESHOLD is not None:
+        reward_list.to_csv(f"{PROJECT_DIR}/dataset/movielens/reward_list_{THRESHOLD}.csv", sep='\t', index=False)
+    else:
+        reward_list.to_csv(f"{PROJECT_DIR}/dataset/movielens/reward_list.csv", sep='\t', index=False)
     ratings_list.to_csv(f"{PROJECT_DIR}/dataset/movielens/ratings_list.csv", sep='\t', index=False)
 
     action_context = movie[movie['movie_id'].isin(actions)]
@@ -142,4 +150,6 @@ def main_data():
 
 
 if __name__ == '__main__':
+    # for t in list(map(lambda x: x / 2, range(1, 11))):
+    #     THRESHOLD = t
     main_data()

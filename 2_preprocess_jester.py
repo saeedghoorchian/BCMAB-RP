@@ -8,6 +8,8 @@ from surprise.model_selection import train_test_split
 from config.cofig import PROJECT_DIR
 
 
+THRESHOLD = None
+
 random.seed(42)
 
 
@@ -108,8 +110,11 @@ def main_data():
 
     print(f"User-rating matrix filled to total ratio: {len(top_jokes) / (len(idx_user) * len(idx_item))}")
 
-    # + 10 due to shifting done for the NDCG, see beginning of this function
-    top_jokes['reward'] = np.where(top_jokes['rating'] >= 0 + 10, 1, 0)  # if rating >=0, the user will like the joke
+    if THRESHOLD is not None:
+        top_jokes['reward'] = np.where(top_jokes['rating'] >= THRESHOLD, 1, 0)
+    else:
+        # + 10 due to shifting done for the NDCG, see beginning of this function
+        top_jokes['reward'] = np.where(top_jokes['rating'] >= 0 + 10, 1, 0)  # if original rating >=0, the user will like the joke
 
     top_jokes["item_id"] = pd.to_numeric(top_jokes["item_id"])
     top_jokes["user_id"] = pd.to_numeric(top_jokes["user_id"])
@@ -118,7 +123,10 @@ def main_data():
     # Only save User-Joke pairs where the reward is 1.
     reward_list = top_jokes[['user_id', 'item_id', 'reward']]
     reward_list = reward_list[reward_list['reward'] == 1]
-    reward_list.to_csv(f"{PROJECT_DIR}/dataset/jester/reward_list.csv", index=False)
+    if THRESHOLD is not None:
+        reward_list.to_csv(f"{PROJECT_DIR}/dataset/jester/reward_list_{THRESHOLD}.csv", index=False)
+    else:
+        reward_list.to_csv(f"{PROJECT_DIR}/dataset/jester/reward_list.csv", index=False)
 
     # Save original ratings for NDCG calculation
     ratings_list = top_jokes[['user_id', 'item_id', 'rating']]
@@ -126,4 +134,6 @@ def main_data():
 
 
 if __name__ == '__main__':
+    # for t in list(range(0, 21)):
+    #     THRESHOLD = t
     main_data()

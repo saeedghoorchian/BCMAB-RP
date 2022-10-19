@@ -3,10 +3,13 @@ import pandas as pd
 from config.cofig import PROJECT_DIR
 
 
-def get_jester_data():
+def get_jester_data(threshold=None):
 
     top_jokes = pd.read_csv(f"{PROJECT_DIR}/dataset/jester/top_jokes.csv")
-    reward_list = pd.read_csv(f"{PROJECT_DIR}/dataset/jester/reward_list.csv")
+    if threshold is None:
+        reward_list = pd.read_csv(f"{PROJECT_DIR}/dataset/jester/reward_list.csv")
+    else:
+        reward_list = pd.read_csv(f"{PROJECT_DIR}/dataset/jester/reward_list_{threshold}.csv")
     ratings_list = pd.read_csv(f"{PROJECT_DIR}/dataset/jester/ratings_list.csv")
 
     idx_item = np.load(f"{PROJECT_DIR}/dataset/jester/idx_item.npy")

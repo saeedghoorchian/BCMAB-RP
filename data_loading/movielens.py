@@ -2,7 +2,7 @@ import pandas as pd
 from config.cofig import PROJECT_DIR
 
 
-def get_movielens_data():
+def get_movielens_data(threshold=None):
     # streaming_batch = pd.read_csv("streaming_batch.csv", sep="\t", names=["user_id"], engine="c")
 
     actions_id = list(pd.read_csv(f"{PROJECT_DIR}/dataset/movielens/actions.csv", sep="\t", header=0, engine="c")["item_id"])
@@ -14,7 +14,10 @@ def get_movielens_data():
     user_features = pd.read_csv(f"{PROJECT_DIR}/dataset/movielens/user_features.csv")
     user_biases = pd.read_csv(f"{PROJECT_DIR}/dataset/movielens/user_biases.csv")
 
-    reward_list = pd.read_csv(f"{PROJECT_DIR}/dataset/movielens/reward_list.csv", sep="\t", header=0, engine="c")
+    if threshold is None:
+        reward_list = pd.read_csv(f"{PROJECT_DIR}/dataset/movielens/reward_list.csv", sep="\t", header=0, engine="c")
+    else:
+        reward_list = pd.read_csv(f"{PROJECT_DIR}/dataset/movielens/reward_list_{threshold}.csv", sep="\t", header=0, engine="c")
     ratings_list = pd.read_csv(f"{PROJECT_DIR}/dataset/movielens/ratings_list.csv", sep="\t", header=0, engine="c")
     # action_context = pd.read_csv(f"{PROJECT_DIR}/dataset/movielens/action_context.csv", sep="\t", header=0, engine="c")
 

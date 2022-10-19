@@ -67,8 +67,9 @@ def evaluate_policy(
     assert times <= user_stream.shape[0], "Not enough users in user stream for given --times parameter"
     ind_start = user_stream.shape[0] - times
     ind_end = user_stream.shape[0] - 1
-    print(f"First user in exp from {datetime.fromtimestamp(user_stream.timestamp[ind_start])}")
-    print(f"Last user in exp from {datetime.fromtimestamp(user_stream.timestamp[ind_end])}")
+    if "timestamp" in user_stream.columns:
+        print(f"First user in exp from {datetime.fromtimestamp(user_stream.timestamp[ind_start])}")
+        print(f"Last user in exp from {datetime.fromtimestamp(user_stream.timestamp[ind_end])}")
     t = 0
     user_ind = ind_start
     while t < ind_end - ind_start:
@@ -170,8 +171,9 @@ def create_offline_dataset(times, actions, action_features, user_stream, user_fe
     assert times <= user_stream.shape[0], "Not enough users in user stream for given --times parameter"
     ind_start = user_stream.shape[0] - times
     ind_end = user_stream.shape[0] - 1
-    print(f"First user in exp from {datetime.fromtimestamp(user_stream.timestamp[ind_start])}")
-    print(f"Last user in exp from {datetime.fromtimestamp(user_stream.timestamp[ind_end])}")
+    if "timestamp" in user_stream.columns:
+        print(f"First user in exp from {datetime.fromtimestamp(user_stream.timestamp[ind_start])}")
+        print(f"Last user in exp from {datetime.fromtimestamp(user_stream.timestamp[ind_end])}")
     t = 0
     user_ind = ind_start
     while t < ind_end - ind_start:
@@ -206,14 +208,17 @@ def create_offline_dataset(times, actions, action_features, user_stream, user_fe
             ]
         ).T
 
-        contexts[t] = full_context_t
+        # contexts[t] = full_context_t
         rewards[t] = rewards_t
 
         if t % 10000 == 0:
             print(t)
 
         t = t + 1
-    offline_contexts = np.concatenate(contexts, axis=0)
-    offline_rewards = np.concatenate(rewards, axis=0)
+    # offline_contexts = np.concatenate(contexts, axis=0)
+    # offline_rewards = np.concatenate(rewards, axis=0)
+    offline_contexts = None
+    offline_rewards = None
 
+    # return offline_contexts, offline_rewards, contexts, rewards
     return offline_contexts, offline_rewards, contexts, rewards
