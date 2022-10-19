@@ -89,10 +89,13 @@ def preprocess_amazon_data(amazon_ratings_path):
 
     action_features = pd.DataFrame(data=qi_all)
     action_features.insert(loc=0, column='item_id', value=trainset_item_ids)
+    # Only save action features for actions present in the experiment
+    action_features = action_features[action_features.item_id.isin(set(actions))]
     action_features.to_csv(f"{PROJECT_DIR}/dataset/amazon/action_features.csv", index=False)
 
     action_biases = pd.DataFrame(data=bi_all)
     action_biases.insert(loc=0, column='item_id', value=trainset_item_ids)
+    action_biases = action_biases[action_biases.item_id.isin(set(actions))]
     action_biases.to_csv(f"{PROJECT_DIR}/dataset/amazon/action_biases.csv", index=False)
 
 
