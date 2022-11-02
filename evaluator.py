@@ -15,11 +15,11 @@ def run_evaluation(trials, num_rep, reduct_matrix, config_file, dataset_type, fe
         experiment_config = json.load(f)
 
     if dataset_type == 'amazon':
-        data = get_amazon_data()
+        dataset = get_amazon_data()
     elif dataset_type == "jester":
-        data = get_jester_data()
+        dataset = get_jester_data()
     elif dataset_type == "movielens":
-        data = get_movielens_data()
+        dataset = get_movielens_data()
     else:
         raise ValueError(f"Unknown dataset type {dataset_type}")
 
@@ -48,42 +48,33 @@ def run_evaluation(trials, num_rep, reduct_matrix, config_file, dataset_type, fe
                 if dataset_type == "amazon":
                     (
                         actions, action_features, action_biases, user_stream, user_features, user_biases, reward_list, ratings_list
-                    ) = data
+                    ) = dataset.get_full_data()
                     if not feature_flag:
                         seq_reward = evaluate_policy_on_amazon(
                             policy, times, actions, action_features, true_user_features, user_stream, user_features, reward_list
                         )
                     else:
-                        seq_reward, seq_ndcg = evaluate_policy(
-                            policy, times, actions, action_features, action_biases, user_stream,
-                            true_user_features, user_features, user_biases, reward_list, ratings_list
-                        )
+                        seq_reward, seq_ndcg = evaluate_policy(policy, times, dataset)
                 elif dataset_type == "jester":
                     (
                         actions, action_features, action_biases, user_stream, true_user_features, user_features, user_biases, reward_list, ratings_list
-                    ) = data
+                    ) = dataset.get_full_data()
                     if not feature_flag:
                         seq_reward = evaluate_policy_on_jester(
                             policy, times, actions, action_features, user_stream, user_features, reward_list
                         )
                     else:
-                        seq_reward, seq_ndcg = evaluate_policy(
-                            policy, times, actions, action_features, action_biases, user_stream,
-                            true_user_features, user_features, user_biases, reward_list, ratings_list
-                        )
+                        seq_reward, seq_ndcg = evaluate_policy(policy, times, dataset)
 
                 elif dataset_type == "movielens":
                     (
                         actions, action_features, action_biases, user_stream, user_features, user_biases, reward_list, ratings_list
-                    ) = data
+                    ) = dataset.get_full_data()
                     if not feature_flag:
                         seq_reward = evaluate_policy_on_movielens(policy, times, user_stream, user_features,
                                                       actions, action_features, reward_list)
                     else:
-                        seq_reward, seq_ndcg = evaluate_policy(
-                            policy, times, actions, action_features, action_biases, user_stream,
-                            true_user_features, user_features, user_biases, reward_list, ratings_list
-                        )
+                        seq_reward, seq_ndcg = evaluate_policy(policy, times, dataset)
 
                 time_end = timeit.default_timer()
 

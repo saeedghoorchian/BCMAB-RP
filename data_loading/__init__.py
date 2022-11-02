@@ -1,3 +1,4 @@
+from data_loading.recommender_dataset import RecommenderDataset
 from data_loading.amazon import get_amazon_data
 from data_loading.jester import get_jester_data
 from data_loading.movielens import get_movielens_data

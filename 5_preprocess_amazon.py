@@ -40,12 +40,12 @@ def create_actions_users_and_rewards(ratings_df):
     if THRESHOLD is not None:
         top_ratings["reward"] = np.where(top_ratings["rating"] >= THRESHOLD, 1, 0)
     else:
-        top_ratings["reward"] = np.where(top_ratings["rating"] >= 3.0, 1, 0)
+        top_ratings["reward"] = np.where(top_ratings["rating"] >= 0.0, 1, 0)
     reward_list = top_ratings[["user_id", "item_id", "reward", "rating"]]
     reward_list = reward_list[reward_list['reward'] == 1]
 
     # Used for NDCG computation
-    ratings_list = top_ratings[["user_id", "item_id", "rating"]]
+    ratings_list = top_ratings[["user_id", "item_id", "reward"]]
     return actions, user_stream, reward_list, ratings_list
 
 

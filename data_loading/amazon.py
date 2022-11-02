@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from config.cofig import PROJECT_DIR
+from data_loading import RecommenderDataset
 
 
 def get_amazon_data(threshold=None):
@@ -23,4 +24,17 @@ def get_amazon_data(threshold=None):
 
     ratings_list = pd.read_csv(f"{PROJECT_DIR}/dataset/amazon/ratings_list.csv", sep="\t", header=0, engine="c")
 
-    return actions, action_features, action_biases, user_stream, user_features, user_features, user_biases, reward_list, ratings_list
+    dataset = RecommenderDataset(
+        actions=actions,
+        action_features=action_features,
+        action_biases=action_biases,
+        user_stream=user_stream,
+        true_user_features=user_features,
+        user_features=user_features,
+        user_biases=user_biases,
+        reward_list=reward_list,
+        ratings_list=ratings_list,
+        ratings_range=(1.0, 5.0),
+        implicit_feedback=True,
+    )
+    return dataset

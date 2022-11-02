@@ -59,12 +59,13 @@ def feature_extraction(data):
     if THRESHOLD is not None:
         top50_data['reward'] = np.where(top50_data['rating'] >= THRESHOLD, 1, 0)
     else:
-        top50_data['reward'] = np.where(top50_data['rating'] >= 3, 1, 0)
+        top50_data['reward'] = np.where(top50_data['rating'] >= 0, 1, 0)
     top50_data = top50_data.rename(columns={'movie_id': "item_id"})
     reward_list = top50_data[['user_id', 'item_id', 'reward']]
     reward_list = reward_list[reward_list['reward'] == 1]
 
-    ratings_list = top50_data[["user_id", "item_id", "rating"]]
+    # Ratings are computed from reward because we use implicit feedback. So NDCG is also computed with 0-1 reward values.
+    ratings_list = top50_data[["user_id", "item_id", "reward"]]
     return user_stream, user_feature, actions, reward_list, ratings_list
 
 
