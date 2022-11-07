@@ -8,7 +8,7 @@ from evaluation import evaluate_policy
 from policies import policy_generation
 
 
-def run_evaluation(trials, num_rep, reduct_matrix, config_file, dataset_type, feature_flag):
+def run_evaluation(trials, num_rep, reduct_matrix, config_file, dataset_type, feature_flag, tune=False):
     print(f"Running each algorithm for {num_rep} repetitions")
 
     with open(config_file, "r") as f:
@@ -54,7 +54,7 @@ def run_evaluation(trials, num_rep, reduct_matrix, config_file, dataset_type, fe
                             policy, times, actions, action_features, true_user_features, user_stream, user_features, reward_list
                         )
                     else:
-                        seq_reward, seq_ndcg = evaluate_policy(policy, times, dataset)
+                        seq_reward, seq_ndcg = evaluate_policy(policy, times, dataset, tune)
                 elif dataset_type == "jester":
                     (
                         actions, action_features, action_biases, user_stream, true_user_features, user_features, user_biases, reward_list, ratings_list
@@ -64,7 +64,7 @@ def run_evaluation(trials, num_rep, reduct_matrix, config_file, dataset_type, fe
                             policy, times, actions, action_features, user_stream, user_features, reward_list
                         )
                     else:
-                        seq_reward, seq_ndcg = evaluate_policy(policy, times, dataset)
+                        seq_reward, seq_ndcg = evaluate_policy(policy, times, dataset, tune)
 
                 elif dataset_type == "movielens":
                     (
@@ -74,7 +74,7 @@ def run_evaluation(trials, num_rep, reduct_matrix, config_file, dataset_type, fe
                         seq_reward = evaluate_policy_on_movielens(policy, times, user_stream, user_features,
                                                       actions, action_features, reward_list)
                     else:
-                        seq_reward, seq_ndcg = evaluate_policy(policy, times, dataset)
+                        seq_reward, seq_ndcg = evaluate_policy(policy, times, dataset, tune)
 
                 time_end = timeit.default_timer()
 

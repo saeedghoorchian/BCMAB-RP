@@ -39,6 +39,13 @@ class RecommenderDataset:
         # Don't use test users for training.
         self.user_stream = self.user_stream[~ self.user_stream.user_id.isin(self.test_user_ids)]
 
+        # Split a separate tuning set. Use 30k users previous to the train set.
+        tune_ind = self.user_stream.index[-130000:-100000]
+
+        self.tune_user_stream = self.user_stream.loc[tune_ind]
+        self.eval_user_stream = self.user_stream.loc[list(set(self.user_stream.index) - set(tune_ind))]
+
+
         (
             self.action_context_dict,
             self.action_bias_dict,
@@ -183,28 +190,30 @@ class RecommenderDataset:
 
         return score_true
 
-    def generate_users(self, time_steps):
+    def generate_users(self, time_steps, tune=False):
         """Generate users and their corresponding data."""
         # Use last `time_steps` users in the user stream. We do this because later data is more dense, so we get all
         # users from a smaller time window this way.
+        user_stream = self.tune_user_stream if tune else self.eval_user_stream
+
         assert (
-            time_steps <= self.user_stream.shape[0]
+            time_steps <= user_stream.shape[0]
         ), "Not enough users in user stream for given --times parameter"
-        ind_start = self.user_stream.shape[0] - time_steps
-        ind_end = self.user_stream.shape[0] - 1
-        if "timestamp" in self.user_stream.columns:
+        ind_start = user_stream.shape[0] - time_steps
+        ind_end = user_stream.shape[0] - 1
+        if "timestamp" in user_stream.columns:
             print(
-                f"First user in exp from {datetime.fromtimestamp(self.user_stream.timestamp[ind_start])}"
+                f"First user in exp from {datetime.fromtimestamp(user_stream.timestamp.iloc[ind_start])}"
             )
             print(
-                f"Last user in exp from {datetime.fromtimestamp(self.user_stream.timestamp[ind_end])}"
+                f"Last user in exp from {datetime.fromtimestamp(user_stream.timestamp.iloc[ind_end])}"
             )
 
         t = 0
         user_ind = ind_start
         while t < ind_end - ind_start:
             user_ind += 1
-            user_t = self.user_stream.iloc[user_ind, 0]
+            user_t = user_stream.iloc[user_ind, 0]
             yield self.get_user_data(user_t)
             t += 1
 

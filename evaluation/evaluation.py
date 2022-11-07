@@ -28,11 +28,16 @@ def evaluate_policy(
         policy,
         times,
         dataset,
+        tune=False,
 ):
+    if tune:
+        print("Using tuning dataset")
+    else:
+        print("Using evaluation dataset")
     seq_reward = np.zeros(shape=(times, 1))
     seq_ndcg = np.zeros(shape=(times, 1))
 
-    users_generator = dataset.generate_users(times)
+    users_generator = dataset.generate_users(times, tune)
 
     for t, user_at_t_data in enumerate(users_generator):
 
@@ -56,12 +61,13 @@ def evaluate_policy_on_test_set(
         policy,
         times,
         dataset,
+        tune=False,
 ):
     """Evaluate policy at each step on a fully labeled separate test set(not used for learning)."""
     seq_reward = np.zeros(shape=(times, 1))
     seq_ndcg = np.zeros(shape=(times, 1))
 
-    users_generator = dataset.generate_users(times)
+    users_generator = dataset.generate_users(times, tune)
 
     for t, user_at_t_data in enumerate(users_generator):
 

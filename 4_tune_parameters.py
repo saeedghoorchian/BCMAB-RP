@@ -83,6 +83,14 @@ if __name__ == "__main__":
         help="General feature flag, used to test new features",
     )
 
+    parser.add_argument(
+        "--tune",
+        dest="tune",
+        action="store_true",
+        default=False,
+        help="Use separate subset of data for tuning",
+    )
+
     args = parser.parse_args()
 
     if args.dataset_type not in ["amazon", "movielens", "jester"]:
@@ -92,7 +100,8 @@ if __name__ == "__main__":
 
     timeBegin = timeit.default_timer()
     evaluation_results = run_evaluation(
-        args.trials, args.num_rep, reduct_matrix, args.config, dataset_type=args.dataset_type, feature_flag=args.feature_flag
+        args.trials, args.num_rep, reduct_matrix, args.config,
+        dataset_type=args.dataset_type, feature_flag=args.feature_flag, tune=args.tune,
     )
 
     print("Saving results")

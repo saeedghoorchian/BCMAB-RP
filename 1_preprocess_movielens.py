@@ -52,7 +52,7 @@ def feature_extraction(data):
     # Only use users with features.
     user_stream = user_stream[user_stream.user_id.isin(set(user_feature.index))]
 
-    users_all_exp = user_stream.user_id[:100000].unique()
+    users_all_exp = user_stream.user_id[:150000].unique()
     print(f"---\nThere are {len(users_all_exp)} unique users in the experiment\n---")
 
     # reward_list: if rating >=3, the user will watch the movie

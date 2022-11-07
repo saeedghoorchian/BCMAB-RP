@@ -11,7 +11,7 @@ random.seed(42)
 
 
 DEFAULT_AMAZON_RATINGS_PATH = f"{PROJECT_DIR}/dataset/amazon/Video_Games.csv"
-AMAZON_NUMBER_OF_ACTIONS = 100
+AMAZON_NUMBER_OF_ACTIONS = 1000
 
 THRESHOLD = None
 
@@ -108,8 +108,8 @@ def preprocess_amazon_data(amazon_ratings_path):
     # Only save users with features for the experiment.
     user_stream = user_stream[user_stream.user_id.isin(users_that_have_features_set)]
 
-    # Only save last 100,000 users as we never use more
-    user_stream = user_stream[-100000:]
+    # Only save last 150,000 users as we never use more
+    user_stream = user_stream[150000:]
     user_stream.to_csv(f"{PROJECT_DIR}/dataset/amazon/user_stream.csv", sep='\t', index=False)
 
     user_features = pd.DataFrame(data=pu_all)
