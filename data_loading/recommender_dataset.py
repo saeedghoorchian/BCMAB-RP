@@ -45,7 +45,6 @@ class RecommenderDataset:
         self.tune_user_stream = self.user_stream.loc[tune_ind]
         self.eval_user_stream = self.user_stream.loc[list(set(self.user_stream.index) - set(tune_ind))]
 
-
         (
             self.action_context_dict,
             self.action_bias_dict,
