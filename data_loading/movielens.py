@@ -41,5 +41,6 @@ def get_movielens_data(threshold=None):
         ratings_list=ratings_list,
         ratings_range=(0.5, 5.0),
         implicit_feedback=True,
+        test_user_ids=None,
     )
     return dataset

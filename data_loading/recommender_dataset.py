@@ -17,6 +17,7 @@ class RecommenderDataset:
         ratings_list,
         ratings_range,
         implicit_feedback,  # If implicit feedback estimate unseen ratings as 0 for NDCG.
+        test_user_ids,
     ):
         self.actions: list = actions
         self.action_features: pd.DataFrame = action_features
@@ -33,6 +34,10 @@ class RecommenderDataset:
         self.ratings_list: pd.DataFrame = ratings_list
         self.ratings_range: tuple = ratings_range
         self.implicit_feedback: bool = implicit_feedback
+        self.test_user_ids: set = test_user_ids or set()
+
+        # Don't use test users for training.
+        self.user_stream = self.user_stream[~ self.user_stream.user_id.isin(self.test_user_ids)]
 
         (
             self.action_context_dict,
@@ -45,6 +50,8 @@ class RecommenderDataset:
             self.user_id_to_watched_list_index,
             self.user_item_to_rating,
         ) = self.data_preprocessing()
+
+        self.test_users_data = self.generate_test_users()
 
     def data_preprocessing(self):
         """Preprocess the data to be in a format that allows more optimal policy evaluation.
@@ -198,16 +205,26 @@ class RecommenderDataset:
         while t < ind_end - ind_start:
             user_ind += 1
             user_t = self.user_stream.iloc[user_ind, 0]
-
-            try:
-                watched_list_index = self.user_id_to_watched_list_index[user_t]
-                watched_list = self.watched_list_series.iloc[watched_list_index]
-            except KeyError:
-                watched_list = set()
-
-            # Create full context by concatenating user and item features.
-            full_context = self.get_full_context(user_t)
-            score_true = self.get_score_true(user_t)
-
-            yield full_context, watched_list, score_true
+            yield self.get_user_data(user_t)
             t += 1
+
+    def get_user_data(self, user_id):
+        try:
+            watched_list_index = self.user_id_to_watched_list_index[user_id]
+            watched_list = self.watched_list_series.iloc[watched_list_index]
+        except KeyError:
+            watched_list = set()
+
+        # Create full context by concatenating user and item features.
+        full_context = self.get_full_context(user_id)
+        score_true = self.get_score_true(user_id)
+        return full_context, watched_list, score_true
+
+    def generate_test_users(self):
+        if self.test_user_ids is None:
+            return []
+
+        test_users_data = []
+        for test_user_id in self.test_user_ids:
+            test_users_data.append(self.get_user_data(test_user_id))
+        return test_users_data

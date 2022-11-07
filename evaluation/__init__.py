@@ -1,4 +1,4 @@
-from evaluation.evaluation import evaluate_policy, create_offline_dataset
+from evaluation.evaluation import evaluate_policy, create_offline_dataset, evaluate_policy_on_test_set
 from evaluation.amazon_evaluation import evaluate_policy_on_amazon
 from evaluation.r6b_evaluation import evaluate_policy_on_r6b
 from evaluation.jester_evaluation import evaluate_policy_on_jester

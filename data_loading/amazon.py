@@ -36,5 +36,6 @@ def get_amazon_data(threshold=None):
         ratings_list=ratings_list,
         ratings_range=(1.0, 5.0),
         implicit_feedback=True,
+        test_user_ids=None,
     )
     return dataset

@@ -47,7 +47,7 @@ def run_evaluation(trials, num_rep, reduct_matrix, config_file, dataset_type, fe
 
                 if dataset_type == "amazon":
                     (
-                        actions, action_features, action_biases, user_stream, user_features, user_biases, reward_list, ratings_list
+                        actions, action_features, action_biases, user_stream, true_user_features, user_features, user_biases, reward_list, ratings_list
                     ) = dataset.get_full_data()
                     if not feature_flag:
                         seq_reward = evaluate_policy_on_amazon(
@@ -68,7 +68,7 @@ def run_evaluation(trials, num_rep, reduct_matrix, config_file, dataset_type, fe
 
                 elif dataset_type == "movielens":
                     (
-                        actions, action_features, action_biases, user_stream, user_features, user_biases, reward_list, ratings_list
+                        actions, action_features, action_biases, user_stream, true_user_features, user_features, user_biases, reward_list, ratings_list
                     ) = dataset.get_full_data()
                     if not feature_flag:
                         seq_reward = evaluate_policy_on_movielens(policy, times, user_stream, user_features,

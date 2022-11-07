@@ -23,6 +23,7 @@ def get_jester_data(threshold=None):
     user_biases = pd.read_csv(f"{PROJECT_DIR}/dataset/jester/user_biases.csv")
 
     user_stream = pd.read_csv(f"{PROJECT_DIR}/dataset/jester/user_stream.csv")
+    test_user_ids = set(np.load(f"{PROJECT_DIR}/dataset/jester/test_user_ids.npy"))
 
     dataset = RecommenderDataset(
         actions=actions,
@@ -36,5 +37,6 @@ def get_jester_data(threshold=None):
         ratings_list=ratings_list,
         ratings_range=(0.0, 20.0),
         implicit_feedback=False,
+        test_user_ids=test_user_ids,
     )
     return dataset

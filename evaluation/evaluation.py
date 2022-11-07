@@ -6,6 +6,24 @@ from sklearn.metrics import ndcg_score
 from config.cofig import NDCG_SCORE_K
 
 
+def get_reward_and_ndcg_for_user(policy, trial, actions, user_data):
+    context, watched_list, score_true = user_data
+
+    action_t, score_dict = policy.get_action(context, trial)
+
+    reward = 1 if action_t in watched_list else 0
+
+    score_predicted = np.zeros((1, len(actions)))
+    for i, action_id in enumerate(actions):
+        score_predicted[:, i] = score_dict[action_id]
+
+    ndcg = ndcg_score(y_true=score_true, y_score=score_predicted, k=NDCG_SCORE_K[1])
+    if ndcg < 0:
+        raise ValueError()
+
+    return reward, ndcg
+
+
 def evaluate_policy(
         policy,
         times,
@@ -18,24 +36,53 @@ def evaluate_policy(
 
     for t, user_at_t_data in enumerate(users_generator):
 
-        full_context, watched_list, score_true = user_at_t_data
+        reward_t, ndcg_t = get_reward_and_ndcg_for_user(
+            policy, t, dataset.actions, user_at_t_data
+        )
 
-        action_t, score_dict = policy.get_action(full_context, t)
+        policy.reward(reward_t)
+        seq_reward[t] = reward_t
+        seq_ndcg[t] = ndcg_t
 
-        if action_t not in watched_list:
-            policy.reward(0.0)
-            seq_reward[t] = 0.0
-        else:
-            policy.reward(1.0)
-            seq_reward[t] = 1.0
+        if t % 5000 == 0:
+            print(t)
 
-        score_predicted = np.zeros((1, len(dataset.actions)))
-        for i, action_id in enumerate(dataset.actions):
-            score_predicted[:, i] = score_dict[action_id]
+    cumulative_reward = np.cumsum(seq_reward, axis=0)
+    cumulative_ndcg = np.cumsum(seq_ndcg, axis=0)
+    return cumulative_reward, cumulative_ndcg
 
-        seq_ndcg[t] = ndcg_score(y_true=score_true, y_score=score_predicted, k=NDCG_SCORE_K[1])
-        if seq_ndcg[t] < 0:
-            raise ValueError()
+
+def evaluate_policy_on_test_set(
+        policy,
+        times,
+        dataset,
+):
+    """Evaluate policy at each step on a fully labeled separate test set(not used for learning)."""
+    seq_reward = np.zeros(shape=(times, 1))
+    seq_ndcg = np.zeros(shape=(times, 1))
+
+    users_generator = dataset.generate_users(times)
+
+    for t, user_at_t_data in enumerate(users_generator):
+
+        reward_t, ndcg_t = get_reward_and_ndcg_for_user(
+            policy, t, dataset.actions, user_at_t_data
+        )
+
+        # Train policy with reward for train user.
+        policy.reward(reward_t)
+
+        # Evaluate policy on a separate (fixed for all t) set of users.
+        test_users_data = dataset.test_users_data
+        rewards_and_ndcgs = [
+            get_reward_and_ndcg_for_user(policy, t, dataset.actions, test_user_data)
+            for test_user_data in test_users_data
+        ]
+        test_rewards = [x[0] for x in rewards_and_ndcgs]
+        test_ndcgs = [x[1] for x in rewards_and_ndcgs]
+
+        seq_reward[t] = np.mean(test_rewards)
+        seq_ndcg[t] = np.mean(test_ndcgs)
 
         if t % 5000 == 0:
             print(t)

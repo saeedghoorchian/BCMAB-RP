@@ -13,6 +13,22 @@ THRESHOLD = None
 random.seed(42)
 
 
+def users_that_rated_all_items(ratings, items):
+    user_sets = []
+    for item_id in items:
+        item_users = set(ratings[ratings.item_id == item_id].user_id)
+        user_sets.append(item_users)
+    return set.intersection(*user_sets)
+
+
+def users_that_rated_all_top_k_items(ratings, k):
+    items = ratings.groupby('item_id').size().sort_values(ascending=False)
+    top_k_items = set(items[:k].index)
+    top_k_ratings = ratings[ratings.item_id.isin(top_k_items)]
+    top_k_users = users_that_rated_all_items(top_k_ratings, top_k_items)
+    return top_k_users
+
+
 def make_user_stream(user_features, times):
     """This function makes a sequence of random users.
     In the policy_evaluation function, users arrive according to this sequence
@@ -42,14 +58,16 @@ def main_data():
         rowl[2] += 10
         jokes.raw_ratings[i] = tuple(rowl)
 
-    trainset, testset = train_test_split(jokes, test_size=0.2)
+    # svd_testset is basically zero, so that we can have all test_user_ids in the train set (fully labeled users)
+    trainset, svd_testset = train_test_split(jokes, test_size=1e-10)
 
     # Only if you are running it the first time
     svd = SVD(n_factors=150, n_epochs=10, lr_all=0.005, reg_all=0.4)  # SVD(n_factors=100)
     svd.fit(trainset)
 
-    predictions = svd.test(testset)
-    print(f"RMSE of SVD: {accuracy.rmse(predictions)}")
+    # predictions = svd.test(svd_testset)
+    # print(f"RMSE of SVD: {accuracy.rmse(predictions)}")
+    print("Testing RMSE of SVD turned off, if you want to check it, switch it on and then back off again.")
 
     # SVD returns memory-views (cython).
     pu_all, qi_all = np.asarray(svd.pu), np.asarray(svd.qi)
@@ -78,6 +96,15 @@ def main_data():
         idx_user.append(trainset.to_raw_uid(i))
     idx_user_int = [int(item) for item in idx_user]
     print(f"#users in train set: {len(idx_user)}")
+
+    ratings = pd.DataFrame(data=list(jokes.raw_ratings))
+    ratings.columns = ["user_id", "item_id", "rating", "other"]
+    del ratings["other"]
+
+    test_user_ids = users_that_rated_all_top_k_items(ratings, 140)
+    assert len(test_user_ids) == 5
+    test_user_ids = list(map(int, test_user_ids))
+    np.save(f"{PROJECT_DIR}/dataset/jester/test_user_ids", np.array(test_user_ids))
 
     user_features = pd.DataFrame(data=pu_all)
     user_features.insert(0, 'user_id', idx_user_int)
