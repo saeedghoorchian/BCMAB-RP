@@ -6,15 +6,33 @@ from sklearn.metrics import ndcg_score
 from config.cofig import NDCG_SCORE_K
 
 
-def get_reward_and_ndcg_for_user(policy, trial, actions, user_data):
-    context, watched_list, score_true = user_data
+def test_nonstationarity_function(trial, arm):
+    """Takes trial and arm index as input and returns index of arm with which to swap."""
+    if 1000 < trial <= 2000:
+        return (arm + 250) % 1000
+    elif 2000 < trial <= 3000:
+        return (arm + 500) % 1000
+    else:
+        return arm
+
+
+def get_reward_and_ndcg_for_user(policy, trial, dataset, user_data, nonstationarity_function=None):
+    context, reward_vector, score_true = user_data
 
     action_t, score_dict = policy.get_action(context, trial)
+    action_ind = dataset.actions_index_by_action_id[action_t]
 
-    reward = 1 if action_t in watched_list else 0
+    if nonstationarity_function is not None:
+        action_ind = nonstationarity_function(trial, action_ind)
+        score_reindex = [
+            nonstationarity_function(trial, arm_ind) for arm_ind, _ in enumerate(dataset.actions)
+        ]
+        score_true[0, :] = score_true[0, score_reindex]
 
-    score_predicted = np.zeros((1, len(actions)))
-    for i, action_id in enumerate(actions):
+    reward = reward_vector[action_ind]
+
+    score_predicted = np.zeros((1, len(dataset.actions)))
+    for i, action_id in enumerate(dataset.actions):
         score_predicted[:, i] = score_dict[action_id]
 
     ndcg = ndcg_score(y_true=score_true, y_score=score_predicted, k=NDCG_SCORE_K[1])
@@ -29,6 +47,7 @@ def evaluate_policy(
         times,
         dataset,
         tune=False,
+        nonstationarity_function=None,
 ):
     if tune:
         print("Using tuning dataset")
@@ -42,7 +61,7 @@ def evaluate_policy(
     for t, user_at_t_data in enumerate(users_generator):
 
         reward_t, ndcg_t = get_reward_and_ndcg_for_user(
-            policy, t, dataset.actions, user_at_t_data
+            policy, t, dataset, user_at_t_data, nonstationarity_function
         )
 
         policy.reward(reward_t)
@@ -72,7 +91,7 @@ def evaluate_policy_on_test_set(
     for t, user_at_t_data in enumerate(users_generator):
 
         reward_t, ndcg_t = get_reward_and_ndcg_for_user(
-            policy, t, dataset.actions, user_at_t_data
+            policy, t, dataset, user_at_t_data
         )
 
         # Train policy with reward for train user.

@@ -20,6 +20,9 @@ class RecommenderDataset:
         test_user_ids,
     ):
         self.actions: list = actions
+        self.actions_index_by_action_id = {
+            a_id: ind for ind, a_id in enumerate(self.actions)
+        }
         self.action_features: pd.DataFrame = action_features
         self.action_biases: pd.DataFrame = action_biases
 
@@ -53,6 +56,7 @@ class RecommenderDataset:
             self.user_biases_array,
             self.user_id_to_index,
             self.watched_list_series,
+            self.reward_matrix,
             self.user_id_to_watched_list_index,
             self.user_item_to_rating,
         ) = self.data_preprocessing()
@@ -108,6 +112,13 @@ class RecommenderDataset:
             uid: ind for ind, uid in enumerate(watched_list_series.index)
         }
 
+        reward_matrix = np.zeros((len(user_id_to_watched_list_index), len(self.actions)))
+        for uid, ind in user_id_to_watched_list_index.items():
+            watched_list = watched_list_series.iloc[ind]
+            watched_indices = [i for i in range(len(self.actions)) if self.actions[i] in watched_list]
+            # Binary vector of rewards for each arm.
+            reward_matrix[ind, watched_indices] = 1
+
         user_item_to_rating = {}
         for (user_id, item_id, rating) in self.ratings_list.to_numpy():
             user_item_to_rating[(user_id, item_id)] = rating
@@ -120,6 +131,7 @@ class RecommenderDataset:
             user_biases_array,
             user_id_to_index,
             watched_list_series,
+            reward_matrix,
             user_id_to_watched_list_index,
             user_item_to_rating,
         )
@@ -220,13 +232,14 @@ class RecommenderDataset:
         try:
             watched_list_index = self.user_id_to_watched_list_index[user_id]
             watched_list = self.watched_list_series.iloc[watched_list_index]
+            reward_vector = self.reward_matrix[watched_list_index]
         except KeyError:
             watched_list = set()
 
         # Create full context by concatenating user and item features.
         full_context = self.get_full_context(user_id)
         score_true = self.get_score_true(user_id)
-        return full_context, watched_list, score_true
+        return full_context, reward_vector, score_true
 
     def generate_test_users(self):
         if self.test_user_ids is None:
