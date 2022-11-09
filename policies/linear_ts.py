@@ -51,6 +51,8 @@ class LinearTS:
         self.update_model_param((B, f, inv_B))
         # print(self.model_param_memory)
 
+        self.rewards = np.zeros((10000, 1000))
+
     def update_history(self, hst):  # (context, recommendatin_id)
         self.history_memory.append(hst)
         # return self.history_memory
@@ -73,6 +75,7 @@ class LinearTS:
         mu_tilde = self.random_state.multivariate_normal(mu_hat.flat, self.nu ** 2 * inv_B)  # [..., np.newaxis]
         mu_tilde = np.reshape(mu_tilde, (-1, 1))
         estimated_reward_array = context_array.dot(mu_hat)
+        self.rewards[trial, :] = estimated_reward_array.flatten()
         score_array = context_array.dot(mu_tilde)
 
         estimated_reward_dict = {}
