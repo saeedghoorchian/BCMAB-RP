@@ -119,6 +119,19 @@ class RecommenderDataset:
             # Binary vector of rewards for each arm.
             reward_matrix[ind, watched_indices] = 1
 
+        # Sort actions based on mean rewards
+        mean_rewards = np.mean(reward_matrix, axis=0)
+        self.actions = [x for _, x in sorted(zip(mean_rewards, self.actions), key=lambda pair: pair[0], reverse=True)]
+
+        # Re-create the reward matrix
+        reward_matrix = np.zeros((len(user_id_to_watched_list_index), len(self.actions)))
+        for uid, ind in user_id_to_watched_list_index.items():
+            watched_list = watched_list_series.iloc[ind]
+            watched_indices = [i for i in range(len(self.actions)) if self.actions[i] in watched_list]
+            # Binary vector of rewards for each arm.
+            reward_matrix[ind, watched_indices] = 1
+
+
         user_item_to_rating = {}
         for (user_id, item_id, rating) in self.ratings_list.to_numpy():
             user_item_to_rating[(user_id, item_id)] = rating
@@ -201,6 +214,20 @@ class RecommenderDataset:
 
         return score_true
 
+    def get_missing_vector(self, user_t):
+        if self.implicit_feedback:
+            # In case of implicit feedback nothing is missing, because originally missing ratings are used as rating 0.
+            return None
+
+        missing_vector = np.zeros(len(self.actions))
+        for i, action_id in enumerate(self.actions):
+            user_item_tuple = (user_t, action_id)
+            if user_item_tuple in self.user_item_to_rating:
+                missing_vector[i] = 0
+            else:
+                missing_vector[i] = 1
+        return missing_vector
+
     def generate_users(self, time_steps, tune=False):
         """Generate users and their corresponding data."""
         # Use last `time_steps` users in the user stream. We do this because later data is more dense, so we get all
@@ -210,7 +237,7 @@ class RecommenderDataset:
         assert (
             time_steps <= user_stream.shape[0]
         ), "Not enough users in user stream for given --times parameter"
-        ind_start = user_stream.shape[0] - time_steps
+        ind_start = user_stream.shape[0] - time_steps - 1
         ind_end = user_stream.shape[0] - 1
         if "timestamp" in user_stream.columns:
             print(
@@ -228,18 +255,28 @@ class RecommenderDataset:
             yield self.get_user_data(user_t)
             t += 1
 
+    def generate_users_until_no_left(self, tune=False):
+        """Generate users and their corresponding data not for fixed times, but unitl there are not users left"""
+        user_stream = self.tune_user_stream if tune else self.eval_user_stream
+
+        user_ind = 0
+        while user_ind < len(user_stream):
+            user_ind += 1
+            user_t = user_stream.iloc[user_ind, 0]
+            yield self.get_user_data(user_t)
+
     def get_user_data(self, user_id):
         try:
             watched_list_index = self.user_id_to_watched_list_index[user_id]
-            watched_list = self.watched_list_series.iloc[watched_list_index]
             reward_vector = self.reward_matrix[watched_list_index]
         except KeyError:
-            watched_list = set()
+            reward_vector = np.zeros(self.reward_matrix.shape[1])
 
         # Create full context by concatenating user and item features.
         full_context = self.get_full_context(user_id)
         score_true = self.get_score_true(user_id)
-        return full_context, reward_vector, score_true
+        missing_vector = self.get_missing_vector(user_id)
+        return full_context, reward_vector, score_true, missing_vector
 
     def generate_test_users(self):
         if self.test_user_ids is None:

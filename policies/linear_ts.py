@@ -75,7 +75,7 @@ class LinearTS:
         mu_tilde = self.random_state.multivariate_normal(mu_hat.flat, self.nu ** 2 * inv_B)  # [..., np.newaxis]
         mu_tilde = np.reshape(mu_tilde, (-1, 1))
         estimated_reward_array = context_array.dot(mu_hat)
-        self.rewards[trial, :] = estimated_reward_array.flatten()
+        # self.rewards[trial, :] = estimated_reward_array.flatten()
         score_array = context_array.dot(mu_tilde)
 
         estimated_reward_dict = {}

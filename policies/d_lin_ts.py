@@ -63,7 +63,7 @@ class DLinTS:
         theta_tilde = self.theta_hat + self.W_inv @ W_tilde_sqrt @ Z
 
         estimated_reward_array = context_array.dot(self.theta_hat)
-        self.rewards[trial, :] = estimated_reward_array.flatten()
+        # self.rewards[trial, :] = estimated_reward_array.flatten()
         score_array = context_array.dot(theta_tilde)
 
         estimated_reward_dict = {}

@@ -17,7 +17,7 @@ def test_nonstationarity_function(trial, arm):
 
 
 def get_reward_and_ndcg_for_user(policy, trial, dataset, user_data, nonstationarity_function=None):
-    context, reward_vector, score_true = user_data
+    context, reward_vector, score_true, missing_vector = user_data
 
     action_t, score_dict = policy.get_action(context, trial)
     action_ind = dataset.actions_index_by_action_id[action_t]
@@ -28,6 +28,12 @@ def get_reward_and_ndcg_for_user(policy, trial, dataset, user_data, nonstationar
             nonstationarity_function(trial, arm_ind) for arm_ind, _ in enumerate(dataset.actions)
         ]
         score_true[0, :] = score_true[0, score_reindex]
+
+    if missing_vector is not None:
+        # For Jester Dataset we need to skip the missing values
+        if missing_vector[action_ind] == 1:
+            # This means this user has not rated this item in the original data (the value is missing).
+            return None, None
 
     reward = reward_vector[action_ind]
 
@@ -68,7 +74,7 @@ def evaluate_policy(
         seq_reward[t] = reward_t
         seq_ndcg[t] = ndcg_t
 
-        if t % 5000 == 0:
+        if t % 500 == 0:
             print(t)
 
     cumulative_reward = np.cumsum(seq_reward, axis=0)
@@ -82,17 +88,30 @@ def evaluate_policy_on_test_set(
         dataset,
         tune=False,
 ):
-    """Evaluate policy at each step on a fully labeled separate test set(not used for learning)."""
+    """Evaluate NDCG of policy at each step on a fully labeled separate test set(not used for learning).
+
+    Reward is reported on the train set, as usual.
+    Only NDCG needs to be computed on a subset of users who have all the ratings.
+    """
     seq_reward = np.zeros(shape=(times, 1))
     seq_ndcg = np.zeros(shape=(times, 1))
 
-    users_generator = dataset.generate_users(times, tune)
+    users_generator = dataset.generate_users_until_no_left(tune)
 
-    for t, user_at_t_data in enumerate(users_generator):
+    t = 0
+    user_ind = 0
+    for user_at_t_data in users_generator:
+        user_ind += 1
+        if t == times:
+            break
 
         reward_t, ndcg_t = get_reward_and_ndcg_for_user(
             policy, t, dataset, user_at_t_data
         )
+
+        if reward_t is None and ndcg_t is None:
+            # Skipped user due to missing value in original data.
+            continue
 
         # Train policy with reward for train user.
         policy.reward(reward_t)
@@ -100,17 +119,22 @@ def evaluate_policy_on_test_set(
         # Evaluate policy on a separate (fixed for all t) set of users.
         test_users_data = dataset.test_users_data
         rewards_and_ndcgs = [
-            get_reward_and_ndcg_for_user(policy, t, dataset.actions, test_user_data)
+            get_reward_and_ndcg_for_user(policy, t, dataset, test_user_data)
             for test_user_data in test_users_data
         ]
-        test_rewards = [x[0] for x in rewards_and_ndcgs]
         test_ndcgs = [x[1] for x in rewards_and_ndcgs]
 
-        seq_reward[t] = np.mean(test_rewards)
+        # Report train reward,
+        seq_reward[t] = reward_t
+        # but test ndcg.
         seq_ndcg[t] = np.mean(test_ndcgs)
 
         if t % 5000 == 0:
             print(t)
+        t += 1
+
+    print(f"Total {t} users considered in this experiment.")
+    print(f"The algorithm has seen {user_ind} users, of them {user_ind - t} were skipped.")
 
     cumulative_reward = np.cumsum(seq_reward, axis=0)
     cumulative_ndcg = np.cumsum(seq_ndcg, axis=0)
