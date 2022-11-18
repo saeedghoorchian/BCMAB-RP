@@ -19,4 +19,4 @@ scontrol show job $SLURM_JOB_ID
 
 source /home/maghsudi/ekortukov80/.bashrc
 conda activate bandit_env
- python ../4_tune_parameters.py --data movielens --trials 100000 --dimension 15 --num-rep 5 --config config/linucb.json
+ python 4_tune_parameters.py --data movielens --trials 30000 --dimension 15 --num-rep 3 --config config/linucb.json --tune

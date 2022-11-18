@@ -19,4 +19,4 @@ scontrol show job $SLURM_JOB_ID
 
 source /home/maghsudi/ekortukov80/.bashrc
 conda activate bandit_env
-python ../5_preprocess_amazon.py
+python 5_preprocess_amazon.py --data-path dataset/amazon/Video_Games.csv
