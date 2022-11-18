@@ -2,6 +2,7 @@ from policies.bcmabrp import BCMABRP
 from policies.cbrap import CBRAP
 from policies.egreedy import EGreedy
 from policies.linear_ts import LinearTS
+from policies.d_lin_ts import DLinTS
 from policies.linucb import LinUCB
 from policies.random import RandomPolicy
 from policies.ucb import UCB
@@ -18,6 +19,10 @@ def policy_generation(bandit, reduct_matrix, params):
     elif bandit == 'LinearTS':
         nu = params.get("nu", 0.5)
         policy = LinearTS(org_dim, delta=0.5, R=0.01, epsilon=0.5, nu=nu)
+    elif bandit == 'DLinTS':
+        gamma = params.get("gamma", 0.999)
+        a = params.get("a", 0.2)
+        policy = DLinTS(org_dim, gamma=gamma, a=a)
     elif bandit == 'LinUCB':
         alpha = params.get("alpha", 0.5)
         policy = LinUCB(org_dim, alpha=alpha)
