@@ -91,6 +91,15 @@ if __name__ == "__main__":
         help="Use separate subset of data for tuning",
     )
 
+    parser.add_argument(
+        "--non-stationarity",
+        dest="non_stationarity",
+        action="store_true",
+        default=False,
+        help="Introduce non-stationarity into the evaluation",
+    )
+
+
     args = parser.parse_args()
 
     if args.dataset_type not in ["amazon", "movielens", "jester"]:
@@ -101,7 +110,8 @@ if __name__ == "__main__":
     timeBegin = timeit.default_timer()
     evaluation_results = run_evaluation(
         args.trials, args.num_rep, reduct_matrix, args.config,
-        dataset_type=args.dataset_type, feature_flag=args.feature_flag, tune=args.tune,
+        dataset_type=args.dataset_type, feature_flag=args.feature_flag,
+        tune=args.tune, non_stationarity=args.non_stationarity,
     )
 
     print("Saving results")

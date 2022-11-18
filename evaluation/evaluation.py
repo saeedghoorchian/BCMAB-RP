@@ -6,14 +6,26 @@ from sklearn.metrics import ndcg_score
 from config.cofig import NDCG_SCORE_K
 
 
-def test_nonstationarity_function(trial, arm):
+def evaluation_nonstationarity_function(trial, arm, num_of_arms):
     """Takes trial and arm index as input and returns index of arm with which to swap."""
-    if 1000 < trial <= 2000:
-        return (arm + 250) % 1000
-    elif 2000 < trial <= 3000:
-        return (arm + 500) % 1000
-    else:
-        return arm
+    N_ARMS = num_of_arms
+    SHIFT_SIZE = int(0.25 * N_ARMS)
+    intervals = [0, 10000, 20000, 50000, 80000, 100000]
+    for i, (start, end) in enumerate(zip(intervals, intervals[1:])):
+        if start <= trial < end:
+            return (arm + i * SHIFT_SIZE) % N_ARMS
+    return arm
+
+
+def tuning_nonstationarity_function(trial, arm, num_of_arms):
+    """Takes trial and arm index as input and returns index of arm with which to swap."""
+    N_ARMS = num_of_arms
+    SHIFT_SIZE = int(0.25 * N_ARMS)
+    intervals = [0, 10000, 20000, 30000]
+    for i, (start, end) in enumerate(zip(intervals, intervals[1:])):
+        if start <= trial < end:
+            return (arm + i * SHIFT_SIZE) % N_ARMS
+    return arm
 
 
 def get_reward_and_ndcg_for_user(policy, trial, dataset, user_data, nonstationarity_function=None):
@@ -23,9 +35,9 @@ def get_reward_and_ndcg_for_user(policy, trial, dataset, user_data, nonstationar
     action_ind = dataset.actions_index_by_action_id[action_t]
 
     if nonstationarity_function is not None:
-        action_ind = nonstationarity_function(trial, action_ind)
+        action_ind = nonstationarity_function(trial, action_ind, len(dataset.actions))
         score_reindex = [
-            nonstationarity_function(trial, arm_ind) for arm_ind, _ in enumerate(dataset.actions)
+            nonstationarity_function(trial, arm_ind, len(dataset.actions)) for arm_ind, _ in enumerate(dataset.actions)
         ]
         score_true[0, :] = score_true[0, score_reindex]
 
@@ -54,15 +66,23 @@ def evaluate_policy(
         dataset,
         tune=False,
         nonstationarity_function=None,
+        introduce_nonstationarity=False,
 ):
     if tune:
         print("Using tuning dataset")
     else:
         print("Using evaluation dataset")
+
+    if introduce_nonstationarity:
+        print("Introducing non-stationarity")
+
     seq_reward = np.zeros(shape=(times, 1))
     seq_ndcg = np.zeros(shape=(times, 1))
 
     users_generator = dataset.generate_users(times, tune)
+
+    if nonstationarity_function is None and introduce_nonstationarity:
+        nonstationarity_function = tuning_nonstationarity_function if tune else evaluation_nonstationarity_function
 
     for t, user_at_t_data in enumerate(users_generator):
 
