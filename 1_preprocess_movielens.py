@@ -8,6 +8,8 @@ from config.cofig import PROJECT_DIR
 
 THRESHOLD = None
 
+MOVIELENS_NUMBER_OF_ACTIONS = 1000
+
 
 def movie_preprocessing(movie):
     movie_col = list(movie.columns)
@@ -34,8 +36,8 @@ def movie_preprocessing(movie):
 
 
 def feature_extraction(data):
-    # actions: we use top 1000 movies as our actions for recommendations
-    actions = data.groupby('movie_id').size().sort_values(ascending=False)[:1000]
+    # actions: we use top MOVIELENS_NUMBER_OF_ACTIONS movies as our actions for recommendations
+    actions = data.groupby('movie_id').size().sort_values(ascending=False)[:MOVIELENS_NUMBER_OF_ACTIONS]
     actions = list(actions.index)
 
     # user_feature: tags they've watched for non-top-1000 movies normalized per user
