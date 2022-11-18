@@ -20,7 +20,7 @@ def evaluation_nonstationarity_function(trial, arm, num_of_arms):
 def tuning_nonstationarity_function(trial, arm, num_of_arms):
     """Takes trial and arm index as input and returns index of arm with which to swap."""
     N_ARMS = num_of_arms
-    SHIFT_SIZE = int(0.25 * N_ARMS)
+    SHIFT_SIZE = int(0.4 * N_ARMS)
     intervals = [0, 10000, 20000, 30000]
     for i, (start, end) in enumerate(zip(intervals, intervals[1:])):
         if start <= trial < end:
