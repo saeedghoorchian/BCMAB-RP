@@ -1,4 +1,4 @@
-from policies.bcmabrp import BCMABRP
+from policies.bcmabrp_old import BCMABRP
 from policies.cbrap import CBRAP
 from policies.egreedy import EGreedy
 from policies.linear_ts import LinearTS
