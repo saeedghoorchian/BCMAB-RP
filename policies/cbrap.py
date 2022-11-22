@@ -2,10 +2,12 @@ from collections import deque
 import six
 import numpy as np
 
+from policies.reduction_matrix import get_reduction_matrix
+
 
 class CBRAP:
 
-    def __init__(self, context_dimension, red_dim, reduct_matrix, alpha, scale=True):
+    def __init__(self, context_dimension, red_dim, alpha, scale=False):
         super(CBRAP, self).__init__()
         self.context_dimension = context_dimension
         self.red_dim = red_dim
@@ -14,6 +16,7 @@ class CBRAP:
         self.model_param_memory = deque(maxlen=1)
         self.history_memory = deque(maxlen=1)
 
+        reduct_matrix = get_reduction_matrix(context_dimension, red_dim)
         if scale:
             self.reduction_matrix = np.zeros(reduct_matrix.shape)
             for k in range(red_dim):

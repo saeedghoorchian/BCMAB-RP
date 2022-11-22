@@ -3,11 +3,11 @@ import six
 import numpy as np
 
 
-class BCMABRP:
+class BCMABRP_Old:
     def __init__(
             self, context_dimension, red_dim, reduct_matrix, delta=0.5, R=0.01, lambd=0.5, nu=0.5, seed=None, scale=False,
     ):
-        super(BCMABRP, self).__init__()
+        super(BCMABRP_Old, self).__init__()
         self.context_dimension = context_dimension
         self.red_dim = red_dim
         self.random_state = np.random.RandomState(seed)
@@ -51,7 +51,7 @@ class BCMABRP:
         else:
             self.reduction_matrix = reduct_matrix
 
-        self.name = f"BCMABRP (nu={self.nu})"
+        self.name = f"BCMABRP_Old (nu={self.nu})"
 
         # Initialization
         B = self.lambd * np.identity(self.red_dim)

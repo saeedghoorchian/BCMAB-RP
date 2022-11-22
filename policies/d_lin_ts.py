@@ -57,9 +57,6 @@ class DLinTS:
     def update_history(self, hst):  # (context, recommendatin_id)
         self.history_memory.append(hst)
 
-    def update_model_param(self, param):  # (B, f, inv_B)
-        self.model_param_memory.append(param)
-
     def get_score(self, context, trial):
         action_ids = list(six.viewkeys(context))
         context_array = np.asarray([context[action_id] for action_id in action_ids])
