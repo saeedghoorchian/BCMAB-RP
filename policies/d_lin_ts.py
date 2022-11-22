@@ -12,7 +12,7 @@ class DLinTS:
     http://proceedings.mlr.press/v124/kim20a/kim20a-supp.pdf
     """
 
-    def __init__(self, context_dimension, time_horizon,  lambda_param=1, gamma=0.5, a=None, seed=None):
+    def __init__(self, context_dimension, lambda_param=1, gamma=0.5, a=None, seed=None):
         super(DLinTS, self).__init__()
         self.context_dimension = context_dimension
         self.random_state = np.random.RandomState(seed)
@@ -20,11 +20,13 @@ class DLinTS:
         self.lambda_param = lambda_param
         self.gamma = gamma
         if a is None:
+            print("\n\nSetting a manually and tuning it works better\n\n")
             # Default setting of parameter as in Corollary 9 of the paper.
+            T = 100000
             c_1 = np.sqrt(
-                2 * np.log(time_horizon) + context_dimension * np.log(
+                2 * np.log(T) + context_dimension * np.log(
                     1 + (
-                            (1 - np.power(gamma, 2 * (time_horizon - 1)))
+                            (1 - np.power(gamma, 2 * (T - 1)))
                             / (lambda_param * context_dimension * (1 - gamma**2))
                     )
                 )
