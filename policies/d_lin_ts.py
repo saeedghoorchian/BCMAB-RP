@@ -12,14 +12,27 @@ class DLinTS:
     http://proceedings.mlr.press/v124/kim20a/kim20a-supp.pdf
     """
 
-    def __init__(self, context_dimension,  lambda_param=1, gamma=0.5, a=1, seed=None):
+    def __init__(self, context_dimension, time_horizon,  lambda_param=1, gamma=0.5, a=None, seed=None):
         super(DLinTS, self).__init__()
         self.context_dimension = context_dimension
         self.random_state = np.random.RandomState(seed)
 
         self.lambda_param = lambda_param
         self.gamma = gamma
-        self.a = a
+        if a is None:
+            # Default setting of parameter as in Corollary 9 of the paper.
+            c_1 = np.sqrt(
+                2 * np.log(time_horizon) + context_dimension * np.log(
+                    1 + (
+                            (1 - np.power(gamma, 2 * (time_horizon - 1)))
+                            / (lambda_param * context_dimension * (1 - gamma**2))
+                    )
+                )
+            ) + np.sqrt(lambda_param)
+
+            self.a = np.sqrt(14) * c_1
+        else:
+            self.a = a
 
         assert self.lambda_param >= 1, "Parameter lambda_param must be >= 1"
         assert 0 < self.gamma < 1, "Parameter gamma must be in (0; 1)"

@@ -94,7 +94,7 @@ def evaluate_policy(
         seq_reward[t] = reward_t
         seq_ndcg[t] = ndcg_t
 
-        if t % 500 == 0:
+        if t % 5000 == 0:
             print(t)
 
     cumulative_reward = np.cumsum(seq_reward, axis=0)
