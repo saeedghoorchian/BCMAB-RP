@@ -7,7 +7,7 @@ from policies.reduction_matrix import get_reduction_matrix
 
 
 class BCMAB_RP:
-    def __init__(self, context_dimension, red_dim, lambda_param, a, gamma, seed=None):
+    def __init__(self, context_dimension, red_dim, a, gamma, lambda_param=1, seed=None):
         self.context_dimension = context_dimension
         self.red_dim = red_dim
 
@@ -50,7 +50,7 @@ class BCMAB_RP:
             Z_tilde_sqrt = Z_tilde_sqrt.astype(np.float64)
 
         W = self.random_state.multivariate_normal(
-            np.zeros(self.context_dimension), self.a ** 2 * np.identity(self.context_dimension)
+            np.zeros(self.red_dim), self.a ** 2 * np.identity(self.red_dim)
         )
         W = W.reshape((-1, 1))
 
@@ -68,3 +68,33 @@ class BCMAB_RP:
             score_dict[action_id] = float(score)
             uncertainty_dict[action_id] = float(score - estimated_reward)
         return estimated_reward_dict, uncertainty_dict, score_dict
+
+    def get_action(self, context, trial):
+        estimated_reward, uncertainty, score = self.get_score(context, trial)
+        recommendation_id = max(score, key=score.get)
+        self.update_history((context, recommendation_id))
+        return recommendation_id, score
+
+    def reward(self, reward_t):
+        context = self.history_memory[0][0]
+        recommendation_id = self.history_memory[0][1]
+
+        context_t = np.reshape(context[recommendation_id], (-1, 1))
+        context_t = self.reduction_matrix.T.dot(context_t)
+
+        self.Z = (
+                self.gamma * self.Z
+                + context_t.dot(context_t.T)
+                + (1 - self.gamma) * self.lambda_param * np.identity(self.red_dim)
+        )
+
+        self.Z_inv = np.linalg.inv(self.Z)
+
+        self.Z_tilde = (
+            self.gamma ** 2 * self.Z_tilde
+            + context_t.dot(context_t.T)
+            + (1 - self.gamma ** 2) * self.lambda_param * np.identity(self.red_dim)
+        )
+
+        self.b = self.gamma * self.b + context_t * reward_t
+        self.psi_hat = self.Z_inv @ self.b

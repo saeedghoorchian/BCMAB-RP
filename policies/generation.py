@@ -14,7 +14,7 @@ def policy_generation(bandit, reduct_matrix, params):
     if bandit == 'BCMAB_RP':
         gamma = params.get("gamma", 0.999)
         a = params.get("a", 0.2)
-        policy = BCMAB_RP(org_dim, red_dim, reduct_matrix, lambda_param=1, gamma=gamma, a=a)
+        policy = BCMAB_RP(org_dim, red_dim, reduct_matrix, a=a, gamma=gamma)
     elif bandit == 'BCMABRP_Old':
         nu = params.get("nu", 0.5)
         policy = BCMABRP_Old(org_dim, red_dim, reduct_matrix, delta=0.5, R=0.01, lambd=0.5, nu=nu)
