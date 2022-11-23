@@ -30,6 +30,7 @@ def run_evaluation(
 
     results = {}
     cum_reward = {}
+    cum_ndcg = {}
     time_all_dict = {}
 
     for experiment in experiment_config:
@@ -39,7 +40,7 @@ def run_evaluation(
         if not params_list:
             params_list = [{}]
         for params in params_list:
-            reward_all, final_rew_all, time_all = [], [], []
+            reward_all, ndcg_all, final_rew_all, time_all = [], [], [], []
             for j in range(num_rep):
                 time_begin = timeit.default_timer()
 
@@ -57,6 +58,7 @@ def run_evaluation(
                 time_end = timeit.default_timer()
 
                 reward_all.append(seq_reward)
+                ndcg_all.append(seq_ndcg)
                 time_all.append(time_end - time_begin)
                 final_rew_all.append(seq_reward[times - 1])
                 print(f"This took {time_end - time_begin:.4f} seconds.\n")
@@ -70,8 +72,9 @@ def run_evaluation(
 
             time_all_dict[policy.name] = time_all
             cum_reward[policy.name] = reward_all
+            cum_ndcg[policy.name] = ndcg_all
 
     results = [(name, result_dict) for name, result_dict in results.items()]
     results = sorted(results, key=lambda x: x[1]["Total reward mean"], reverse=True)
 
-    return results, cum_reward, time_all_dict
+    return results, cum_reward, cum_ndcg, time_all_dict

@@ -61,6 +61,13 @@ if __name__ == "__main__":
         help="Which data to use, 'amazon', 'movielens' or 'jester'",
     )
 
+    parser.add_argument(
+        "--config",
+        type=str,
+        required=True,
+        help="Config file for evaluation",
+    )
+
     args = parser.parse_args()
 
     if args.dataset_type not in ["amazon", "movielens", "jester"]:
@@ -70,12 +77,14 @@ if __name__ == "__main__":
 
     timeBegin = timeit.default_timer()
 
-    results = run_evaluation(
-        args.trials, args.num_rep, reduct_matrix, EVALUATION_CONFIG_FILE, dataset_type=args.dataset_type
+    evaluation_results = run_evaluation(
+        args.trials, args.num_rep, reduct_matrix, args.config,
+        dataset_type=args.dataset_type, feature_flag=args.feature_flag,
+        tune=False, non_stationarity=True,
     )
 
     print("Saving results")
-    save_results(results, args.trials, args.num_rep, args.dimension, args.dataset_type)
+    save_results(evaluation_results, args.trials, args.num_rep, args.dimension, args.dataset_type)
 
     timeEnd = timeit.default_timer()
     print(f"Done.\nThe whole experiment took {timeEnd - timeBegin:.2f} seconds.")
