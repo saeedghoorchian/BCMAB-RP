@@ -35,6 +35,8 @@ class BCMAB_RP:
         self.b = np.zeros((self.red_dim, 1))
         self.psi_hat = np.zeros((self.red_dim, 1))
 
+        self.name = f"BCMAB-RP (d={self.red_dim}, gamma={self.gamma}, a={self.a})"
+
     def update_history(self, hst):  # (context, recommendation_id)
         self.history_memory.append(hst)
 

@@ -52,6 +52,7 @@ class DLinTS:
         self.b_hat = np.zeros((self.context_dimension, 1))
         self.theta_hat = np.zeros((self.context_dimension, 1))
 
+        self.name = f"DLinTS (gamma={self.gamma}, a={self.a})"
         self.rewards = np.zeros((10000, 1000))
 
     def update_history(self, hst):  # (context, recommendatin_id)

@@ -1,6 +1,7 @@
 from policies.bcmab_rp import BCMAB_RP
 from policies.bcmabrp_old import BCMABRP_Old
 from policies.cbrap import CBRAP
+from policies.deepfm import DeepFM_OnlinePolicy
 from policies.egreedy import EGreedy
 from policies.linear_ts import LinearTS
 from policies.d_lin_ts import DLinTS
@@ -23,6 +24,9 @@ def policy_generation(bandit, reduct_matrix, params):
         alpha = params.get("alpha", 0.5)
         red_dim_param = params.get("red_dim", red_dim)
         policy = CBRAP(org_dim, red_dim_param, alpha=alpha)
+    elif bandit == 'DeepFM':
+        batch_size = params.get("batch_size", 5000)
+        policy = DeepFM_OnlinePolicy(org_dim ,batch_size=batch_size)
     elif bandit == 'LinearTS':
         nu = params.get("nu", 0.5)
         policy = LinearTS(org_dim, delta=0.5, R=0.01, epsilon=0.5, nu=nu)

@@ -1,0 +1,6 @@
+[
+   {"algo": "DeepFM", "params": [
+      {"batch_size": 5000}
+   ]
+   }
+]
