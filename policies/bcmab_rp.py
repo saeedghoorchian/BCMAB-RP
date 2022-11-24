@@ -26,7 +26,6 @@ class BCMAB_RP:
         self.model_param_memory = deque(maxlen=1)
         self.history_memory = deque(maxlen=1)
 
-        self.name = f"DLinTS (lambda={self.lambda_param}, gamma={self.gamma}, a={self.a})"
 
         # Initialization
         self.Z = self.lambda_param * np.identity(self.red_dim)
