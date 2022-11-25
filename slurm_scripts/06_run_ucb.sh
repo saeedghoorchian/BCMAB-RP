@@ -2,7 +2,7 @@
 
 #SBATCH --partition=cpu-long
 
-#SBATCH --cpus-per-task=32
+#SBATCH --cpus-per-task=16
 #SBATCH --nodes=1
 # time in minutes
 #SBATCH --time=2440

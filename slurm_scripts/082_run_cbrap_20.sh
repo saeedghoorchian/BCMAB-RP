@@ -2,7 +2,7 @@
 
 #SBATCH --partition=cpu-long
 
-#SBATCH --cpus-per-task=32
+#SBATCH --cpus-per-task=16
 #SBATCH --nodes=1
 # time in minutes
 #SBATCH --time=2440
@@ -19,4 +19,4 @@ scontrol show job $SLURM_JOB_ID
 
 source /home/maghsudi/ekortukov80/.bashrc
 conda activate bandit_env
- python ../4_tune_parameters.py --data movielens --trials 100000 --dimension 24 --num-rep 5 --config config/cbrap.json
+python 4_tune_parameters.py --data movielens --trials 30000 --dimension 24 --num-rep 3 --config config/cbrap.json --tune
