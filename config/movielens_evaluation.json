@@ -1,0 +1,19 @@
+[
+   {"algo": "LinearTS", "params": [{"nu": 0.3}]},
+   {"algo": "LinUCB", "params": [{"alpha": 0.9}]},
+   {"algo": "EGreedy", "params": [{"epsilon": 0.001}]},
+   {"algo": "BCMABRP", "params": [{"nu": 0.65}]},
+   {"algo": "DLinTS", "params": [{"gamma": 0.999, "a":  0.2}]},
+   {"algo": "CBRAP", "params": [{"red_dim": 6, "alpha": 0.3}]},
+   {"algo": "CBRAP", "params": [{"red_dim": 12, "alpha": 0.7}]},
+   {"algo": "CBRAP", "params": [{"red_dim": 24, "alpha": 0.5}]},
+   {"algo": "CBRAP", "params": [{"red_dim": 60, "alpha": 0.4}]},
+   {"algo": "CBRAP", "params": [{"red_dim": 120, "alpha": 0.6}]},
+   {"algo": "BCMAB_RP", "params": [{"red_dim": 6, "gamma": 0.99, "a": 0.1}]},
+   {"algo": "BCMAB_RP", "params": [{"red_dim": 12, "gamma": 0.99, "a": 0.1}]},
+   {"algo": "BCMAB_RP", "params": [{"red_dim": 24, "gamma": 0.9, "a": 0.1}]},
+   {"algo": "BCMAB_RP", "params": [{"red_dim": 60, "gamma": 0.999, "a": 0.2}]},
+   {"algo": "BCMAB_RP", "params": [{"red_dim": 120, "gamma": 0.999, "a": 0.2}]},
+   {"algo": "DeepFM", "params": [{"batch_size": 1000}]},
+   {"algo": "RandomPolicy", "params": []}
+]
