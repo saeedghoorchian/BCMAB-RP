@@ -4,7 +4,7 @@ from config.cofig import PROJECT_DIR
 from data_loading import RecommenderDataset
 
 
-def get_amazon_data(threshold=None):
+def get_amazon_data(times, tune, threshold=None):
     actions = list(
         pd.read_csv(f"{PROJECT_DIR}/dataset/amazon/actions.csv", sep="\t", header=0, engine="c")["item_id"]
     )
@@ -37,5 +37,8 @@ def get_amazon_data(threshold=None):
         ratings_range=(1.0, 5.0),
         implicit_feedback=True,
         test_user_ids=None,
+        times=times,
+        n_arms=1000,
+        tune=tune,
     )
     return dataset
