@@ -21,5 +21,5 @@ scontrol show job $SLURM_JOB_ID
 source /home/maghsudi/ekortukov80/.bashrc
 conda activate bandit_env
  python 4_tune_parameters.py --data movielens --trials 100000 --dimension 15 --num-rep 1 \
- --config config/linucb.json --tune \
+ --config config/linucb.json  \
  --intervals  "[1, 5000, 10000, 20000, 35000, 50000, 65000, 80000, 100000]"
