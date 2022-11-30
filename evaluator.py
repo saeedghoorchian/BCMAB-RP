@@ -17,11 +17,11 @@ def run_evaluation(
         experiment_config = json.load(f)
 
     if dataset_type == 'amazon':
-        dataset = get_amazon_data()
+        dataset = get_amazon_data(trials, tune)
     elif dataset_type == "jester":
-        dataset = get_jester_data()
+        dataset = get_jester_data(trials, tune)
     elif dataset_type == "movielens":
-        dataset = get_movielens_data()
+        dataset = get_movielens_data(trials, tune)
     else:
         raise ValueError(f"Unknown dataset type {dataset_type}")
 

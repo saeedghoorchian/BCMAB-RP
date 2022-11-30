@@ -4,7 +4,7 @@ from config.cofig import PROJECT_DIR
 from data_loading import RecommenderDataset
 
 
-def get_jester_data(threshold=None):
+def get_jester_data(times, tune, threshold=None):
 
     top_jokes = pd.read_csv(f"{PROJECT_DIR}/dataset/jester/top_jokes.csv")
     if threshold is None:
@@ -38,5 +38,8 @@ def get_jester_data(threshold=None):
         ratings_range=(0.0, 20.0),
         implicit_feedback=False,
         test_user_ids=test_user_ids,
+        times=times,
+        n_arms=140,
+        tune=tune,
     )
     return dataset

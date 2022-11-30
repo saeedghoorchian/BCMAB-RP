@@ -1,6 +1,7 @@
 from datetime import datetime
 import numpy as np
 import pandas as pd
+import time
 
 
 class RecommenderDataset:
@@ -18,7 +19,11 @@ class RecommenderDataset:
         ratings_range,
         implicit_feedback,  # If implicit feedback estimate unseen ratings as 0 for NDCG.
         test_user_ids,
+        times,
+        n_arms,
+        tune,
     ):
+        start_ts = time.time()
         self.actions: list = actions
         self.actions_index_by_action_id = {
             a_id: ind for ind, a_id in enumerate(self.actions)
@@ -62,6 +67,24 @@ class RecommenderDataset:
         ) = self.data_preprocessing()
 
         self.test_users_data = self.generate_test_users()
+
+        self.exp_reward_matrix = self.generate_experiment_reward_matrix(times, n_arms, tune)
+        exp_mean_rewards = np.mean(self.exp_reward_matrix, axis=0)
+        # Sort actions based on experiment mean rewards.
+        self.actions = [x for _, x in sorted(zip(exp_mean_rewards, self.actions), key=lambda pair: pair[0], reverse=True)]
+
+        # Re-create the reward matrix for sorted actions.
+        self.reward_matrix = np.zeros((len(self.user_id_to_watched_list_index), len(self.actions)))
+        for uid, ind in self.user_id_to_watched_list_index.items():
+            watched_list = self.watched_list_series.iloc[ind]
+            watched_indices = [i for i in range(len(self.actions)) if self.actions[i] in watched_list]
+            # Binary vector of rewards for each arm.
+            self.reward_matrix[ind, watched_indices] = 1
+
+        # Re-create exp reward matrix
+        self.exp_reward_matrix = self.generate_experiment_reward_matrix(times, n_arms, tune)
+
+        print(f"Dataset creation took {time.time() - start_ts} s.")
 
     def data_preprocessing(self):
         """Preprocess the data to be in a format that allows more optimal policy evaluation.
@@ -118,19 +141,6 @@ class RecommenderDataset:
             watched_indices = [i for i in range(len(self.actions)) if self.actions[i] in watched_list]
             # Binary vector of rewards for each arm.
             reward_matrix[ind, watched_indices] = 1
-
-        # Sort actions based on mean rewards
-        mean_rewards = np.mean(reward_matrix, axis=0)
-        self.actions = [x for _, x in sorted(zip(mean_rewards, self.actions), key=lambda pair: pair[0], reverse=True)]
-
-        # Re-create the reward matrix
-        reward_matrix = np.zeros((len(user_id_to_watched_list_index), len(self.actions)))
-        for uid, ind in user_id_to_watched_list_index.items():
-            watched_list = watched_list_series.iloc[ind]
-            watched_indices = [i for i in range(len(self.actions)) if self.actions[i] in watched_list]
-            # Binary vector of rewards for each arm.
-            reward_matrix[ind, watched_indices] = 1
-
 
         user_item_to_rating = {}
         for (user_id, item_id, rating) in self.ratings_list.to_numpy():
@@ -286,3 +296,23 @@ class RecommenderDataset:
         for test_user_id in self.test_user_ids:
             test_users_data.append(self.get_user_data(test_user_id))
         return test_users_data
+
+    def generate_experiment_reward_matrix(self, times, n_arms, tune):
+        reward_vecs = np.zeros((times, n_arms))
+        users = self.generate_users(times, tune=tune)
+        for i, user_data in enumerate(users):
+            context, reward_vector, score_true, missing_vector = user_data
+            reward_vecs[i, :] = reward_vector
+        return reward_vecs
+
+    def sort_actions_based_on_experiment(self, times, n_arms, tune):
+        """Sort actions list based on mean rewards in experiment.
+
+        This is done for easy introduction of non-stationarity. This way first k arms are on average best k arms
+        (!) for a given experiment.
+        """
+        print("Sorting actions based on experiment")
+        exp_reward_matrix = self.generate_experiment_reward_matrix(times, n_arms, tune)
+        exp_mean_rewards = np.mean(exp_reward_matrix, axis=0)
+        self.actions = [x for _, x in sorted(zip(exp_mean_rewards, self.actions), key=lambda pair: pair[0], reverse=True)]
+

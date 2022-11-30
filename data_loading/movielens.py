@@ -3,7 +3,7 @@ from config.cofig import PROJECT_DIR
 from data_loading import RecommenderDataset
 
 
-def get_movielens_data(threshold=None):
+def get_movielens_data(times, tune, threshold=None):
     # streaming_batch = pd.read_csv("streaming_batch.csv", sep="\t", names=["user_id"], engine="c")
 
     actions_id = list(pd.read_csv(f"{PROJECT_DIR}/dataset/movielens/actions.csv", sep="\t", header=0, engine="c")["item_id"])
@@ -42,5 +42,8 @@ def get_movielens_data(threshold=None):
         ratings_range=(0.5, 5.0),
         implicit_feedback=True,
         test_user_ids=None,
+        times=times,
+        n_arms=1000,
+        tune=tune,
     )
     return dataset
