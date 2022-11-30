@@ -3,6 +3,7 @@ import timeit
 import json
 import pickle
 
+import config.cofig
 from reduct_matrix import get_reduct_matrix
 from evaluator import run_evaluation
 from config.cofig import PROJECT_DIR
@@ -99,11 +100,24 @@ if __name__ == "__main__":
         help="Introduce non-stationarity into the evaluation",
     )
 
+    parser.add_argument(
+        "--intervals",
+        dest="intervals",
+        type=str,
+        default="[]",
+        help="Intervals to use for non-stationarity",
+    )
+
 
     args = parser.parse_args()
 
     if args.dataset_type not in ["amazon", "movielens", "jester"]:
         raise ValueError("--data should be in ['movielens', 'jester']")
+
+
+    intervals = json.loads(args.intervals)
+    if intervals:
+        config.cofig.NON_STATIONARITY_INTERVALS = intervals
 
     reduct_matrix = get_reduct_matrix(args.dataset_type, args.dimension, args.load_old_reduct_matrix)
 
