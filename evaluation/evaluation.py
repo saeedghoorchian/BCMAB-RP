@@ -4,7 +4,7 @@ from datetime import datetime
 
 from sklearn.metrics import ndcg_score
 
-from config.cofig import NDCG_SCORE_K, NON_STATIONARITY_INTERVALS, SHIFT_SIZE
+from config import cofig
 
 wandb.init(project="reduction_bandits", config={})
 
@@ -12,10 +12,10 @@ wandb.init(project="reduction_bandits", config={})
 def evaluation_nonstationarity_function(trial, arm, num_of_arms):
     """Takes trial and arm index as input and returns index of arm with which to swap."""
     N_ARMS = num_of_arms
-    shift_size_int = int(SHIFT_SIZE * N_ARMS)
+    shift_size_int = int(cofig.SHIFT_SIZE * N_ARMS)
 
     # intervals = [1, 5000, 10000, 20000, 35000, 50000, 65000, 80000, 100000]
-    intervals = NON_STATIONARITY_INTERVALS
+    intervals = cofig.NON_STATIONARITY_INTERVALS
     for i, (start, end) in enumerate(zip(intervals, intervals[1:])):
         if start <= trial < end:
             return (arm + i * shift_size_int) % N_ARMS
@@ -25,8 +25,8 @@ def evaluation_nonstationarity_function(trial, arm, num_of_arms):
 def tuning_nonstationarity_function(trial, arm, num_of_arms):
     """Takes trial and arm index as input and returns index of arm with which to swap."""
     N_ARMS = num_of_arms
-    SHIFT_SIZE = int(0.4 * N_ARMS)
-    intervals = [0, 10000, 20000, 30000]
+    SHIFT_SIZE = int(cofig.SHIFT_SIZE * N_ARMS)
+    intervals = cofig.NON_STATIONARITY_INTERVALS
     for i, (start, end) in enumerate(zip(intervals, intervals[1:])):
         if start <= trial < end:
             return (arm + i * SHIFT_SIZE) % N_ARMS
@@ -58,7 +58,7 @@ def get_reward_and_ndcg_for_user(policy, trial, dataset, user_data, nonstationar
     for i, action_id in enumerate(dataset.actions):
         score_predicted[:, i] = score_dict[action_id]
 
-    ndcg = ndcg_score(y_true=score_true, y_score=score_predicted, k=NDCG_SCORE_K[1])
+    ndcg = ndcg_score(y_true=score_true, y_score=score_predicted, k=cofig.NDCG_SCORE_K[1])
     if ndcg < 0:
         raise ValueError()
 
@@ -85,8 +85,8 @@ def evaluate_policy(
         "non-stationarity": introduce_nonstationarity,
         "non-stat func": nonstationarity_function,
         "times": times,
-        "intervals": NON_STATIONARITY_INTERVALS,
-        "shift_size": SHIFT_SIZE,
+        "intervals": cofig.NON_STATIONARITY_INTERVALS,
+        "shift_size": cofig.SHIFT_SIZE,
         "policy": policy.name,
     })
     seq_reward = np.zeros(shape=(times, 1))
@@ -120,7 +120,7 @@ def evaluate_policy(
             print(t)
 
         change_point_close = any([
-            True if x in NON_STATIONARITY_INTERVALS else False
+            True if x in cofig.NON_STATIONARITY_INTERVALS else False
             for x in range(t-5, t+5)
         ])
 
