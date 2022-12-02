@@ -8,10 +8,21 @@ from policies.d_lin_ts import DLinTS
 from policies.linucb import LinUCB
 from policies.random import RandomPolicy
 from policies.ucb import UCB
+from config import cofig
 
 
 def policy_generation(bandit, reduct_matrix, params):
     org_dim, red_dim = reduct_matrix.shape
+    if "intervals" in params:
+        intervals = params["intervals"]
+        assert type(intervals) == list
+        cofig.NON_STATIONARITY_INTERVALS = intervals
+
+    if "shift_size" in params:
+        shift_size = params["shift_size"]
+        assert 0.0 <= shift_size <= 1.0
+        cofig.SHIFT_SIZE = shift_size
+
     if bandit == 'BCMAB_RP':
         gamma = params.get("gamma", 0.999)
         a = params.get("a", 0.2)

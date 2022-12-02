@@ -4,21 +4,21 @@ from datetime import datetime
 
 from sklearn.metrics import ndcg_score
 
-from config.cofig import NDCG_SCORE_K, NON_STATIONARITY_INTERVALS
+from config.cofig import NDCG_SCORE_K, NON_STATIONARITY_INTERVALS, SHIFT_SIZE
 
-wandb.init(project="reduction_bandits")
+wandb.init(project="reduction_bandits", config={})
 
 
 def evaluation_nonstationarity_function(trial, arm, num_of_arms):
     """Takes trial and arm index as input and returns index of arm with which to swap."""
     N_ARMS = num_of_arms
-    SHIFT_SIZE = int(0.4 * N_ARMS)
+    shift_size_int = int(SHIFT_SIZE * N_ARMS)
 
     # intervals = [1, 5000, 10000, 20000, 35000, 50000, 65000, 80000, 100000]
     intervals = NON_STATIONARITY_INTERVALS
     for i, (start, end) in enumerate(zip(intervals, intervals[1:])):
         if start <= trial < end:
-            return (arm + i * SHIFT_SIZE) % N_ARMS
+            return (arm + i * shift_size_int) % N_ARMS
     return arm
 
 
@@ -81,13 +81,14 @@ def evaluate_policy(
     if introduce_nonstationarity:
         print("Introducing non-stationarity")
 
-    wandb.config = {
+    wandb.config.update({
         "non-stationarity": introduce_nonstationarity,
         "non-stat func": nonstationarity_function,
         "times": times,
         "intervals": NON_STATIONARITY_INTERVALS,
+        "shift_size": SHIFT_SIZE,
         "policy": policy.name,
-    }
+    })
     seq_reward = np.zeros(shape=(times, 1))
     seq_ndcg = np.zeros(shape=(times, 1))
     cumul_reward = 0
