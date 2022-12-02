@@ -119,12 +119,17 @@ def evaluate_policy(
         if t % 5000 == 0:
             print(t)
 
+        change_point_close = any([
+            True if x in NON_STATIONARITY_INTERVALS else False
+            for x in range(t-5, t+5)
+        ])
+
         wandb.log({
             "cumul_reward": cumul_reward,
             "cumul_avg_reward": cumul_avg_reward,
             "cumul_ndcg": cumul_ndcg,
             "cumul_avg_ndcg": cumul_avg_ndcg,
-            "change_point": 0.8 if t in NON_STATIONARITY_INTERVALS else 0,
+            "change_point": 0.8 if change_point_close else 0,
         })
 
 
