@@ -124,6 +124,7 @@ def evaluate_policy(
             "cumul_avg_reward": cumul_avg_reward,
             "cumul_ndcg": cumul_ndcg,
             "cumul_avg_ndcg": cumul_avg_ndcg,
+            "change_point": 0.8 if t in NON_STATIONARITY_INTERVALS else 0,
         })
 
 
