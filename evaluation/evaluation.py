@@ -6,7 +6,6 @@ from sklearn.metrics import ndcg_score
 
 from config import cofig
 
-wandb.init(project="reduction_bandits", config={})
 
 
 def evaluation_nonstationarity_function(trial, arm, num_of_arms):
@@ -80,6 +79,8 @@ def evaluate_policy(
 
     if introduce_nonstationarity:
         print("Introducing non-stationarity")
+
+    wandb.init(project="reduction_bandits", config={}, mode="enabled" if cofig.WANDB_LOGGING else "disabled")
 
     wandb.config.update({
         "non-stationarity": introduce_nonstationarity,

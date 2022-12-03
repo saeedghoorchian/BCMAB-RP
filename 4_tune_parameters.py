@@ -108,11 +108,21 @@ if __name__ == "__main__":
         help="Intervals to use for non-stationarity",
     )
 
+    parser.add_argument(
+        "--wandb",
+        dest="wandb",
+        action="store_true",
+        default=False,
+        help="Log the experiment to wandb",
+    )
 
     args = parser.parse_args()
 
     if args.dataset_type not in ["amazon", "movielens", "jester"]:
         raise ValueError("--data should be in ['movielens', 'jester']")
+
+    if args.wandb:
+        config.cofig.WANDB_LOGGING = True
 
 
     intervals = json.loads(args.intervals)
