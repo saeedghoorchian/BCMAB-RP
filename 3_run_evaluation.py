@@ -10,11 +10,12 @@ from config.cofig import PROJECT_DIR
 EVALUATION_CONFIG_FILE = "config/evaluation.json"
 
 
-def save_results(results, t, n, d, dataset):
-    with open(f"{PROJECT_DIR}/results/results_{dataset}_t_{t}_n_{n}_d_{d}.pickle", "wb") as f:
+def save_results(results, config_file, t, n, d, dataset):
+    config_name = config_file.split('/')[-1].split('.')[0]
+    with open(f"{PROJECT_DIR}/results/results_{dataset}_{config_name}_t_{t}_n_{n}_d_{d}.pickle", "wb") as f:
         pickle.dump(results, f)
 
-    with open(f"{PROJECT_DIR}/results/results_{dataset}_t_{t}_n_{n}_d_{d}.json", "w") as f:
+    with open(f"{PROJECT_DIR}/results/results_{dataset}_{config_name}_t_{t}_n_{n}_d_{d}.json", "w") as f:
         json.dump(results[0], f)
 
 
@@ -84,7 +85,7 @@ if __name__ == "__main__":
     )
 
     print("Saving results")
-    save_results(evaluation_results, args.trials, args.num_rep, args.dimension, args.dataset_type)
+    save_results(evaluation_results, args.config, args.trials, args.num_rep, args.dimension, args.dataset_type)
 
     timeEnd = timeit.default_timer()
     print(f"Done.\nThe whole experiment took {timeEnd - timeBegin:.2f} seconds.")
