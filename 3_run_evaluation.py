@@ -79,7 +79,7 @@ if __name__ == "__main__":
 
     evaluation_results = run_evaluation(
         args.trials, args.num_rep, reduct_matrix, args.config,
-        dataset_type=args.dataset_type, feature_flag=args.feature_flag,
+        dataset_type=args.dataset_type, feature_flag=False,
         tune=False, non_stationarity=True,
     )
 
