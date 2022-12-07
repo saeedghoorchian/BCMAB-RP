@@ -24,7 +24,7 @@ class CBRAP:
         else:
             self.reduction_matrix = reduct_matrix
 
-        self.name = f"CBRAP (alpha={self.alpha})"
+        self.name = f"CBRAP (d={red_dim}, alpha={self.alpha})"
 
         # Initialization
         A = np.identity(self.red_dim)
