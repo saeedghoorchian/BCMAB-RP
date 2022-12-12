@@ -109,7 +109,7 @@ def main_data():
     user_features = pd.DataFrame(data=pu_all)
     user_features.insert(0, 'user_id', idx_user_int)
 
-    user_stream = make_user_stream(user_features, 500000)
+    user_stream = make_user_stream(user_features, 150000)
     user_stream.to_csv(f"{PROJECT_DIR}/dataset/jester/user_stream.csv", index=False)
 
     # Only save user features for those users that are present in the experiment.

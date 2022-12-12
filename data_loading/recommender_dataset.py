@@ -66,7 +66,7 @@ class RecommenderDataset:
             self.user_item_to_rating,
         ) = self.data_preprocessing()
 
-        self.test_users_data = self.generate_test_users()
+        # self.test_users_data = self.generate_test_users()
 
         # self.exp_reward_matrix = self.generate_experiment_reward_matrix(times, n_arms, tune)
         # exp_mean_rewards = np.mean(self.exp_reward_matrix, axis=0)
@@ -225,6 +225,10 @@ class RecommenderDataset:
         return score_true
 
     def get_missing_vector(self, user_t):
+
+        # Don't use this functionality
+        return None
+
         if self.implicit_feedback:
             # In case of implicit feedback nothing is missing, because originally missing ratings are used as rating 0.
             return None
