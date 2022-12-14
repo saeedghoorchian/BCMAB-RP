@@ -1,4 +1,4 @@
-import wandb
+# import wandb
 import numpy as np
 from datetime import datetime
 
@@ -80,16 +80,16 @@ def evaluate_policy(
     if introduce_nonstationarity:
         print("Introducing non-stationarity")
 
-    wandb.init(project="reduction_bandits", config={}, mode="enabled" if cofig.WANDB_LOGGING else "disabled")
+    # wandb.init(project="reduction_bandits", config={}, mode="enabled" if cofig.WANDB_LOGGING else "disabled")
 
-    wandb.config.update({
-        "non-stationarity": introduce_nonstationarity,
-        "non-stat func": nonstationarity_function,
-        "times": times,
-        "intervals": cofig.NON_STATIONARITY_INTERVALS,
-        "shift_size": cofig.SHIFT_SIZE,
-        "policy": policy.name,
-    })
+    # wandb.config.update({
+    #     "non-stationarity": introduce_nonstationarity,
+    #     "non-stat func": nonstationarity_function,
+    #     "times": times,
+    #     "intervals": cofig.NON_STATIONARITY_INTERVALS,
+    #     "shift_size": cofig.SHIFT_SIZE,
+    #     "policy": policy.name,
+    # })
     seq_reward = np.zeros(shape=(times, 1))
     seq_ndcg = np.zeros(shape=(times, 1))
     cumul_reward = 0
@@ -125,13 +125,13 @@ def evaluate_policy(
             for x in range(t-5, t+5)
         ])
 
-        wandb.log({
-            "cumul_reward": cumul_reward,
-            "cumul_avg_reward": cumul_avg_reward,
-            "cumul_ndcg": cumul_ndcg,
-            "cumul_avg_ndcg": cumul_avg_ndcg,
-            "change_point": 0.8 if change_point_close else 0,
-        })
+        # wandb.log({
+        #     "cumul_reward": cumul_reward,
+        #     "cumul_avg_reward": cumul_avg_reward,
+        #     "cumul_ndcg": cumul_ndcg,
+        #     "cumul_avg_ndcg": cumul_avg_ndcg,
+        #     "change_point": 0.8 if change_point_close else 0,
+        # })
 
 
     cumulative_reward = np.cumsum(seq_reward, axis=0)
