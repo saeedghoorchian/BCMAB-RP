@@ -1,18 +1,38 @@
 [
-   {"algo": "LinearTS", "params": [{"nu": 0.1}]},
-   {"algo": "LinUCB", "params": [{"alpha": 0.6}]},
-   {"algo": "EGreedy", "params": [{"epsilon": 1e-06}]},
-   {"algo": "DLinTS", "params": [{"gamma": 0.9999, "a":  0.1}]},
-   {"algo": "CBRAP", "params": [{"red_dim": 5, "alpha": 0.3}]},
-   {"algo": "CBRAP", "params": [{"red_dim": 10, "alpha": 0.3}]},
-   {"algo": "CBRAP", "params": [{"red_dim": 20, "alpha": 0.3}]},
-   {"algo": "CBRAP", "params": [{"red_dim": 50, "alpha": 0.3}]},
-   {"algo": "CBRAP", "params": [{"red_dim": 100, "alpha": 0.3}]},
-   {"algo": "BCMAB_RP", "params": [{"red_dim": 5, "gamma": 0.9999, "a": 0.2}]},
-   {"algo": "BCMAB_RP", "params": [{"red_dim": 10, "gamma": 0.999, "a": 0.1}]},
-   {"algo": "BCMAB_RP", "params": [{"red_dim": 20, "gamma": 0.999, "a": 0.1}]},
-   {"algo": "BCMAB_RP", "params": [{"red_dim": 50, "gamma": 0.9999, "a": 0.1}]},
-   {"algo": "BCMAB_RP", "params": [{"red_dim": 100, "gamma": 0.9999, "a": 0.2}]},
-   {"algo": "DeepFM", "params": [{"batch_size": 30000}]},
+   {"algo": "LinearTS", "params": [{"nu": 0.3}]},
+   {"algo": "LinUCB", "params": [{"alpha": 0.3}]},
+   {"algo": "EGreedy", "params": [{"epsilon": 0.05}]},
+   {"algo": "DLinTS", "params": [{"gamma": 0.999, "a":  0.1}]},
+   {"algo": "CBRAP", "params": [{"red_dim": 15, "alpha": 0.3}]},
+   {"algo": "CBRAP", "params": [{"red_dim": 30, "alpha": 0.3}]},
+   {"algo": "CBRAP", "params": [{"red_dim": 60, "alpha": 0.3}]},
+   {"algo": "CBRAP", "params": [{"red_dim": 150, "alpha": 0.3}]},
+   {"algo": "CBRAP", "params": [{"red_dim": 300, "alpha": 0.3}]},
+   {"algo": "BCMAB_RP", "params": [{"red_dim": 15, "gamma": 0.999, "a": 0.4}]},
+   {"algo": "BCMAB_RP", "params": [{"red_dim": 30, "gamma": 0.99, "a": 0.2}]},
+   {"algo": "BCMAB_RP", "params": [{"red_dim": 60, "gamma": 0.99, "a": 0.1}]},
+   {"algo": "BCMAB_RP", "params": [{"red_dim": 150, "gamma": 0.99, "a": 0.1}]},
+   {"algo": "BCMAB_RP", "params": [{"red_dim": 300, "gamma": 0.999, "a": 0.2}]},
+   {"algo": "DeepFM", "params": [{"batch_size": 15000}]},
    {"algo": "RandomPolicy", "params": []}
 ]
+
+15, 30, 60, 150
+alpha 0.1
+10944.0 + 15284.0 + 14808.0 + 14356.0 = 55392
+alpha 0.2
+11683.0 + 15283.0 + 14121.0 + 15122.0 = 56209
+alpha 0.3
+11784.0 + 15282.0 + 15726.0 + 15212.0 = 58004
+alpha 0.4
+10938.0 + 15281.0 + 13957.0 + 15743.0 = 55919
+alpha 0.5
+14009.0 + 15281.0 + 15503.0 + 15084.0 = 59877
+alpha 0.6
+14008.0 + 15277.0 + 15883.0 + 15440.0 = 60608
+alpha 0.7
+11784.0 + 15277.0 + 15876.0 + 15380.0 = 58317
+alpha 0.8
+13998.0 + 15273.0 + 15878.0 + 15297.0 = 60446
+alpha 0.9
+13993.0 + 15276.0 + 15811.0 + 15152.0 = 60232
