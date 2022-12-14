@@ -22,7 +22,9 @@ class RecommenderDataset:
         times,
         n_arms,
         tune,
+        shift_back=False,
     ):
+        self.shift_back = shift_back
         start_ts = time.time()
         self.actions: list = actions
         self.actions_index_by_action_id = {
@@ -142,6 +144,11 @@ class RecommenderDataset:
             # Binary vector of rewards for each arm.
             reward_matrix[ind, watched_indices] = 1
 
+        if self.shift_back:
+            # Remove some of the arms for Amazon data to reduce inherent non-stationarity.
+            for j in [13, 14, 18, 27, 96]:
+                reward_matrix[:, j] = 0
+
         user_item_to_rating = {}
         for (user_id, item_id, rating) in self.ratings_list.to_numpy():
             user_item_to_rating[(user_id, item_id)] = rating
@@ -253,6 +260,10 @@ class RecommenderDataset:
         ), "Not enough users in user stream for given --times parameter"
         ind_start = user_stream.shape[0] - time_steps - 1
         ind_end = user_stream.shape[0] - 1
+        if self.shift_back:
+            ind_start -= 10000
+            ind_end -= 10000
+
         if "timestamp" in user_stream.columns:
             print(
                 f"First user in exp from {datetime.fromtimestamp(user_stream.timestamp.iloc[ind_start])}"
