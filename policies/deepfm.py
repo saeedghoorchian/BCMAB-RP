@@ -20,17 +20,26 @@ class DeepFM_OnlinePolicy():
         self.context_t = None
         self.action_t = None
         # Save last `batch_size` pairs of context and reward to train the model.
-        self.context_label_memory = deque(maxlen=batch_size)
+        # self.context_label_memory = deque(maxlen=batch_size)
+
+        # Save all the seen data to train the network
+        self.context_label_memory = deque(maxlen=100000)
+        # Keep track of trials
+        self.trial = 0
 
     def update_memory(self, memory):  # (context_t, reward_t)
         self.context_label_memory.append(memory)
 
     def update_model_params(self):
-        if len(self.context_label_memory) < self.batch_size:
+        if self.trial % self.batch_size != 0:
             return
 
-        dataset = np.zeros(shape=(self.batch_size, self.context_dimension))
-        labels = np.zeros(shape=(self.batch_size,))
+        if len(self.context_label_memory) < self.batch_size:
+            # Don't train the model until at least `batch_size` observations in the buffer
+            return
+
+        dataset = np.zeros(shape=(len(self.context_label_memory), self.context_dimension))
+        labels = np.zeros(shape=(len(self.context_label_memory),))
         for idx, (context_t, reward_t) in enumerate(self.context_label_memory):
             dataset[idx] = context_t
             labels[idx] = reward_t
@@ -84,15 +93,16 @@ class DeepFM_OnlinePolicy():
         self.model.fit(
             train_model_input,
             target,
-            batch_size=self.batch_size,
+            batch_size=256,  # Default value in this library
             epochs=10,
             verbose=2,
             validation_split=0.0
         )
         # Clear the memory
-        self.context_label_memory.clear()
+        # self.context_label_memory.clear()
 
     def get_score(self, context, trial):
+        self.trial = trial
         action_ids = list(six.viewkeys(context))
         context_array = np.asarray([context[action_id] for action_id in action_ids])
 
