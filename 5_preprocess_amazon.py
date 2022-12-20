@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import random
 import surprise as sp
+from datetime import datetime
 
 from config.cofig import PROJECT_DIR, AMAZON_CONTEXT_DIMENSION
 
@@ -11,10 +12,28 @@ random.seed(42)
 
 
 DEFAULT_AMAZON_RATINGS_PATH = f"{PROJECT_DIR}/dataset/amazon/Video_Games.csv"
-AMAZON_NUMBER_OF_ACTIONS = 1000
+AMAZON_NUMBER_OF_ACTIONS = 400
 
 THRESHOLD = None
 
+def print_mean_rewards(reward_list, actions):
+    watched_list_series = (
+        reward_list.groupby("user_id")["item_id"].agg(set=set).set
+    )
+    user_id_to_watched_list_index = {
+        uid: ind for ind, uid in enumerate(watched_list_series.index)
+    }
+    reward_matrix = np.zeros((len(user_id_to_watched_list_index), len(actions)))
+    for uid, ind in user_id_to_watched_list_index.items():
+        watched_list = watched_list_series.iloc[ind]
+        watched_indices = [i for i in range(len(actions)) if actions[i] in watched_list]
+        # Binary vector of rewards for each arm.
+        reward_matrix[ind, watched_indices] = 1
+
+    mean_rew = reward_matrix.mean(axis=0)
+
+    print(f"Reward of best 50 arms: {np.sort(mean_rew)[::-1][:50]}")
+    print(f"Sum of rewards:\t {mean_rew.sum()}")
 
 def create_actions_users_and_rewards(ratings_df):
     """Preprocess the original dataframe to extract actions, users and rewards from it.
@@ -25,6 +44,16 @@ def create_actions_users_and_rewards(ratings_df):
     3. Create rewards from ratings by considering rating > 3.0 being reward 1. Then only save user-item-reward triplets
     for rewards equal to 1. This way we can filter by user during evaluation and if item is there reward is 1.
     """
+    # Choose a less sparse subset of data with a length of 1 year.
+    YEARS_BEHIND = 5.8
+    max_ts = ratings_df.timestamp.max()
+    start_time = max_ts - 3600 * 24 * 365 * YEARS_BEHIND
+    end_time = max_ts - 3600 * 24 * 365 * (YEARS_BEHIND-0.5)
+    print(f"Start time: {datetime.fromtimestamp(start_time)}")
+    print(f"End time: {datetime.fromtimestamp(end_time)}")
+    ratings_df = ratings_df[ratings_df.timestamp > start_time]
+    ratings_df = ratings_df[ratings_df.timestamp < end_time]
+
     actions = ratings_df.groupby("item_id").size().sort_values(ascending=False)[:AMAZON_NUMBER_OF_ACTIONS]
     actions = list(actions.index)
 
@@ -32,10 +61,18 @@ def create_actions_users_and_rewards(ratings_df):
     top_ratings = ratings_df[ratings_df["item_id"].isin(actions)]
     top_ratings = top_ratings.sort_values("timestamp", ascending=1)
     user_stream = top_ratings[["user_id", "timestamp"]]
-    user_stream.to_csv(f"{PROJECT_DIR}/dataset/amazon/new_user_stream.csv")
 
-    unique_users = user_stream.user_id.unique()
-    print(f"Experiments has {len(actions)} items,\n{len(user_stream)} users\nof which {len(unique_users)} are unique.")
+    NUM_UNIQUE_USERS = 5000
+    top_users = list(top_ratings.groupby('user_id').size().sort_values(ascending=False)[:NUM_UNIQUE_USERS].index)
+    user_stream = user_stream[user_stream.user_id.isin(top_users)]
+    user_stream = user_stream.drop_duplicates(subset=['user_id'])
+    users = set(user_stream.user_id)
+
+    user_stream = user_stream.sample(n=135000, replace=True, random_state=42)
+
+    print(f"Experiments has {len(actions)} items,\n{len(user_stream)} users\nof which {len(users)} are unique.")
+
+    top_ratings = top_ratings[top_ratings.user_id.isin(users)]
 
     if THRESHOLD is not None:
         top_ratings["reward"] = np.where(top_ratings["rating"] >= THRESHOLD, 1, 0)
@@ -43,17 +80,18 @@ def create_actions_users_and_rewards(ratings_df):
         top_ratings["reward"] = np.where(top_ratings["rating"] >= 0.0, 1, 0)
     reward_list = top_ratings[["user_id", "item_id", "reward", "rating"]]
     reward_list = reward_list[reward_list['reward'] == 1]
-
+    print_mean_rewards(reward_list, actions)
     # Used for NDCG computation
     ratings_list = top_ratings[["user_id", "item_id", "reward"]]
-    return actions, user_stream, reward_list, ratings_list
+    return ratings_df, actions, user_stream, reward_list, ratings_list
+
 
 
 def preprocess_amazon_data(amazon_ratings_path):
     """Use surprise library to create user and item features and rewards from the original amazon ratings data."""
     ratings_df = pd.read_csv(amazon_ratings_path, names=["item_id", "user_id", "rating", "timestamp"])
 
-    actions, user_stream, reward_list, ratings_list = create_actions_users_and_rewards(ratings_df)
+    ratings_df, actions, user_stream, reward_list, ratings_list = create_actions_users_and_rewards(ratings_df)
 
     pd.DataFrame(actions, columns=["item_id"]).to_csv(f"{PROJECT_DIR}/dataset/amazon/actions.csv", sep='\t', index=False)
     if THRESHOLD is not None:
@@ -108,8 +146,6 @@ def preprocess_amazon_data(amazon_ratings_path):
     # Only save users with features for the experiment.
     user_stream = user_stream[user_stream.user_id.isin(users_that_have_features_set)]
 
-    # Only save last 150,000 users as we never use more
-    user_stream = user_stream[150000:]
     user_stream.to_csv(f"{PROJECT_DIR}/dataset/amazon/user_stream.csv", sep='\t', index=False)
 
     user_features = pd.DataFrame(data=pu_all)

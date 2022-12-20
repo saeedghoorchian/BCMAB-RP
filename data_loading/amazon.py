@@ -40,6 +40,6 @@ def get_amazon_data(times, tune, threshold=None):
         times=times,
         n_arms=1000,
         tune=tune,
-        shift_back=True,
+        shift_back=False,
     )
     return dataset
