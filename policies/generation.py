@@ -36,8 +36,7 @@ def policy_generation(bandit, reduct_matrix, params):
         red_dim_param = params.get("red_dim", red_dim)
         policy = CBRAP(org_dim, red_dim_param, alpha=alpha)
     elif bandit == 'DeepFM':
-        batch_size = params.get("batch_size", 5000)
-        policy = DeepFM_OnlinePolicy(org_dim ,batch_size=batch_size)
+        policy = DeepFM_OnlinePolicy(org_dim)
     elif bandit == 'LinearTS':
         nu = params.get("nu", 0.5)
         policy = LinearTS(org_dim, delta=0.5, R=0.01, epsilon=0.5, nu=nu)
