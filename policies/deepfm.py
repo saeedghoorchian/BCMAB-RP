@@ -86,8 +86,7 @@ class DeepFM_OnlinePolicy():
         # TODO Do the train-evaluation loop here with grid search over parameters.
         # TODO Which parameters? Learning rate and regularization strength, maybe dropout.
         device = 'cpu'
-        use_cuda = True
-        if use_cuda and torch.cuda.is_available():
+        if torch.cuda.is_available():
             print('cuda ready...')
             device = 'cuda:0'
 
@@ -117,17 +116,9 @@ class DeepFM_OnlinePolicy():
             [1e-6, 1e-5, 1e-4],  # l2_reg_linear
             [1e-6, 1e-5, 1e-4],  # l2_reg_embedding
             [0, 1e-6, 1e-5],  # l2_reg_dnn
-            [0, 0.1, 0.25],  # dropout
+            [0, 0.1],  # dropout
             [1e-2, 1e-3, 1e-4],  # learning rate
         ]
-
-        # parameters = [
-        #     [1e-5],  # l2_reg_linear
-        #     [1e-5],  # l2_reg_embedding
-        #     [0, 1e-5],  # l2_reg_dnn
-        #     [0],  # dropout
-        #     [1e-2],  # learning rate
-        # ]
 
         param_grid = list(itertools.product(*parameters))
         cv_acc = np.zeros(len(param_grid))
