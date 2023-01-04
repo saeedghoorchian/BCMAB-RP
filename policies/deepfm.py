@@ -104,6 +104,9 @@ class DeepFM_OnlinePolicy():
         ]
         param_grid = list(itertools.product(*parameters))
         params = param_grid[self.param_index]
+        if self.trial == 2000:
+            # print once
+            print(f'Parameters: (act, dropout, lr, n_neurons_[l1,l2,l3]: {params}')
 
         dnn_activation, dnn_dropout, learning_rate, num_neurons_l1, num_neurons_l2, num_neurons_l3 = params
         dnn_hidden_units = [num_neurons_l1, num_neurons_l2, num_neurons_l3]
