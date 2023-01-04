@@ -10,10 +10,16 @@ from deepctr_torch.inputs import SparseFeat, DenseFeat, get_feature_names
 from deepctr_torch.models import *
 from deepctr_torch.layers.utils import slice_arrays
 
+import sys
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
 
 class DeepFM_OnlinePolicy():
-    def __init__(self, context_dimension):
+    def __init__(self, context_dimension, param_index):
         self.name = f"DeepFM"
+        eprint(f"Param index: {param_index}")
         self.context_dimension = context_dimension
         self.batch_size = 1000
 
@@ -28,7 +34,7 @@ class DeepFM_OnlinePolicy():
         # Keep track of trials
         self.trial = 0
 
-        self.param_index = 0
+        self.param_index = param_index
 
     def update_memory(self, memory):  # (context_t, reward_t)
         self.context_label_memory.append(memory)
@@ -104,9 +110,8 @@ class DeepFM_OnlinePolicy():
         ]
         param_grid = list(itertools.product(*parameters))
         params = param_grid[self.param_index]
-        if self.trial == 2000:
-            # print once
-            print(f'Parameters: (act, dropout, lr, n_neurons_[l1,l2,l3]: {params}')
+        if self.trial % 5000 == 0:
+            eprint(f'Parameters: (act, dropout, lr, n_neurons_[l1,l2,l3]: {params}')
 
         dnn_activation, dnn_dropout, learning_rate, num_neurons_l1, num_neurons_l2, num_neurons_l3 = params
         dnn_hidden_units = [num_neurons_l1, num_neurons_l2, num_neurons_l3]
