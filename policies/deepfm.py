@@ -28,6 +28,8 @@ class DeepFM_OnlinePolicy():
         # Keep track of trials
         self.trial = 0
 
+        self.param_index = 0
+
     def update_memory(self, memory):  # (context_t, reward_t)
         self.context_label_memory.append(memory)
 
@@ -90,81 +92,28 @@ class DeepFM_OnlinePolicy():
             print('cuda ready...')
             device = 'cuda:0'
 
-
-        self.model = DeepFM(linear_feature_columns=linear_feature_columns, dnn_feature_columns=dnn_feature_columns,
-                            task='binary', l2_reg_embedding=1e-5, device=device)
-
-        learning_rate = 1e-2
-        self.model.compile(Adagrad(self.model.parameters(), learning_rate), "binary_crossentropy", metrics=["accuracy"])
-
-        # Split the validation data separately to run validation.
-        validation_split = 0.2
-        if isinstance(train_model_input, dict):
-            train_model_input = [train_model_input[feature] for feature in self.model.feature_index]
-        if hasattr(train_model_input[0], 'shape'):
-            split_at = int(train_model_input[0].shape[0] * (1. - validation_split))
-        else:
-            split_at = int(len(train_model_input[0]) * (1. - validation_split))
-        train_x, val_x = (slice_arrays(train_model_input, 0, split_at),
-                          slice_arrays(train_model_input, split_at))
-        train_y, val_y = (slice_arrays(target, 0, split_at),
-                          slice_arrays(target, split_at))
-
         batch_size = 256  # Default value in the library.
 
         parameters = [
-            [1e-6, 1e-5, 1e-4],  # l2_reg_linear
-            [1e-6, 1e-5, 1e-4],  # l2_reg_embedding
-            [0, 1e-6, 1e-5],  # l2_reg_dnn
-            [0, 0.1],  # dropout
+            ['relu', 'Tanh'],  # activation_function
+            [0, 0.1, 0.2, 0.3, 0.4, 0.5],  # dropout
             [1e-2, 1e-3, 1e-4],  # learning rate
+            [1024, 512, 256, 128],  # num of neurons in layer 1
+            [1024, 512, 256, 128],  # num of neurons in layer 2
+            [1024, 512, 256, 128],  # num of neurons in layer 3
         ]
-
         param_grid = list(itertools.product(*parameters))
-        cv_acc = np.zeros(len(param_grid))
+        params = param_grid[self.param_index]
 
-        for i, params in enumerate(param_grid):
-            l2_reg_linear, l2_reg_embedding, l2_reg_dnn, dropout, learning_rate = params
-            # print(f"Params tuple {i}")
-            self.model = DeepFM(linear_feature_columns=linear_feature_columns, dnn_feature_columns=dnn_feature_columns,
-                                task='binary', device=device,
-                                l2_reg_linear=l2_reg_linear,
-                                l2_reg_embedding=l2_reg_embedding,
-                                l2_reg_dnn=l2_reg_dnn,
-                                dnn_dropout=dropout,
-            )
-            self.model.compile(Adagrad(self.model.parameters(), learning_rate), "binary_crossentropy", metrics=["accuracy"])
-
-            self.model.fit(
-                train_x,
-                train_y,
-                batch_size=batch_size,
-                epochs=10,
-                verbose=0,
-                validation_split=0.0,
-
-            )
-
-            eval_result = self.model.evaluate(val_x, val_y, batch_size)
-            cv_acc[i] = eval_result["accuracy"]
-            # print(f"Validation accuracy on {len(val_y)} points: {cv_acc[i]}")
-
-        print(f"All possible cv accuracies: {cv_acc}")
-        print(f"Best cv accuracy: {np.max(cv_acc)}")
-        best_params = param_grid[np.argmax(cv_acc)]
-
-        l2_reg_linear, l2_reg_embedding, l2_reg_dnn, dropout, learning_rate = best_params
-
-        print(f"Best params: l2_reg_linear={l2_reg_linear}, l2_reg_embedding={l2_reg_embedding}, "
-              f"l2_reg_dnn={l2_reg_dnn}, dropout={dropout}, learning_rate={learning_rate}")
+        dnn_activation, dnn_dropout, learning_rate, num_neurons_l1, num_neurons_l2, num_neurons_l3 = params
+        dnn_hidden_units = [num_neurons_l1, num_neurons_l2, num_neurons_l3]
 
         # Train model on full data using best params.
         self.model = DeepFM(linear_feature_columns=linear_feature_columns, dnn_feature_columns=dnn_feature_columns,
                             task='binary', device=device,
-                            l2_reg_linear=l2_reg_linear,
-                            l2_reg_embedding=l2_reg_embedding,
-                            l2_reg_dnn=l2_reg_dnn,
-                            dnn_dropout=dropout,
+                            dnn_activation=dnn_activation,
+                            dnn_dropout=dnn_dropout,
+                            dnn_hidden_units=dnn_hidden_units,
                             )
         self.model.compile(Adagrad(self.model.parameters(), learning_rate), "binary_crossentropy", metrics=["accuracy"])
         self.model.fit(
