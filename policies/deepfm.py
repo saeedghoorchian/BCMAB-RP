@@ -101,7 +101,7 @@ class DeepFM_OnlinePolicy():
         batch_size = 256  # Default value in the library.
 
         parameters = [
-            ['relu', 'Tanh'],  # activation_function
+            ['relu', torch.nn.Tanh],  # activation_function
             [0, 0.1, 0.2, 0.3, 0.4, 0.5],  # dropout
             [1e-2, 1e-3, 1e-4],  # learning rate
             [1024, 512, 256, 128],  # num of neurons in layer 1
