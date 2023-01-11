@@ -37,8 +37,8 @@ class DeepFM_OnlinePolicy():
         self.param_index = param_index
 
         # Debugging variables
-        self.estimated_rewards = np.zeros((10000, 1000))
-        self.chosen_actions = np.zeros((10000, 1000))
+        self.estimated_rewards = np.zeros((100000, 1000))
+        self.chosen_actions = np.zeros((100000, 1000))
 
     def update_memory(self, memory):  # (context_t, reward_t)
         self.context_label_memory.append(memory)
@@ -50,6 +50,9 @@ class DeepFM_OnlinePolicy():
         if len(self.context_label_memory) < self.batch_size:
             # Don't train the model until at least `batch_size` observations in the buffer
             return
+
+        # if len(self.context_label_memory) < 4000:
+        #     return
 
         dataset = np.zeros(shape=(len(self.context_label_memory), self.context_dimension))
         labels = np.zeros(shape=(len(self.context_label_memory),))
