@@ -173,7 +173,7 @@ class DeepFM_OnlinePolicy():
         else:
             estimated_ctr_array = self.model.predict(model_input, batch_size=len(action_ids))
 
-        self.estimated_rewards[trial, :] = estimated_ctr_array
+        self.estimated_rewards[trial, :] = estimated_ctr_array.flatten()
         self.chosen_actions[trial, np.argmax(estimated_ctr_array)] = 1
 
         score_dict = {}
