@@ -32,6 +32,7 @@ def run_evaluation(
     cum_reward = {}
     cum_ndcg = {}
     time_all_dict = {}
+    policies = {}
 
     for experiment in experiment_config:
         bandit_name = experiment["algo"]
@@ -63,6 +64,8 @@ def run_evaluation(
                 final_rew_all.append(seq_reward[times - 1])
                 print(f"This took {time_end - time_begin:.4f} seconds.\n")
 
+            policies[policy.name] = policy
+
             results[policy.name] = {
                 "Time mean":  np.mean(time_all),
                 "Time std": np.std(time_all),
@@ -77,4 +80,4 @@ def run_evaluation(
     results = [(name, result_dict) for name, result_dict in results.items()]
     results = sorted(results, key=lambda x: x[1]["Total reward mean"], reverse=True)
 
-    return results, cum_reward, cum_ndcg, time_all_dict
+    return results, cum_reward, cum_ndcg, time_all_dict, policies

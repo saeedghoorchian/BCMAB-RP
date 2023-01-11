@@ -36,6 +36,10 @@ class DeepFM_OnlinePolicy():
 
         self.param_index = param_index
 
+        # Debugging variables
+        self.estimated_rewards = np.zeros((10000, 1000))
+        self.chosen_actions = np.zeros((10000, 1000))
+
     def update_memory(self, memory):  # (context_t, reward_t)
         self.context_label_memory.append(memory)
 
@@ -168,6 +172,9 @@ class DeepFM_OnlinePolicy():
             estimated_ctr_array = np.random.uniform(low=0.0, high=1.0, size=context_array.shape[0])
         else:
             estimated_ctr_array = self.model.predict(model_input, batch_size=len(action_ids))
+
+        self.estimated_rewards[trial, :] = estimated_ctr_array
+        self.chosen_actions[trial, np.argmax(estimated_ctr_array)] = 1
 
         score_dict = {}
         for action_id, ctr in zip(action_ids, estimated_ctr_array):

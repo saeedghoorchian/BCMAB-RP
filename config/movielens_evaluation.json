@@ -13,6 +13,6 @@
    {"algo": "BCMAB_RP", "params": [{"red_dim": 24, "gamma": 0.99, "a": 0.2}]},
    {"algo": "BCMAB_RP", "params": [{"red_dim": 60, "gamma": 0.999, "a": 0.2}]},
    {"algo": "BCMAB_RP", "params": [{"red_dim": 120, "gamma": 0.99, "a": 0.1}]},
-   {"algo": "DeepFM", "params": [{"batch_size": 1000}]},
+   {"algo": "DeepFM", "params": [{"param_index": 395}]}, ('relu', 0.2, 0.01, 1024, 256, 128),
    {"algo": "RandomPolicy", "params": []}
 ]
