@@ -4,6 +4,7 @@ import pandas as pd
 import random
 import surprise as sp
 from datetime import datetime
+import time
 
 from config.cofig import PROJECT_DIR, AMAZON_CONTEXT_DIMENSION
 
@@ -62,7 +63,7 @@ def create_actions_users_and_rewards(ratings_df):
     top_ratings = top_ratings.sort_values("timestamp", ascending=1)
     user_stream = top_ratings[["user_id", "timestamp"]]
 
-    NUM_UNIQUE_USERS = 5000
+    NUM_UNIQUE_USERS = 7000
     top_users = list(top_ratings.groupby('user_id').size().sort_values(ascending=False)[:NUM_UNIQUE_USERS].index)
     user_stream = user_stream[user_stream.user_id.isin(top_users)]
     user_stream = user_stream.drop_duplicates(subset=['user_id'])
@@ -83,7 +84,7 @@ def create_actions_users_and_rewards(ratings_df):
     print_mean_rewards(reward_list, actions)
     # Used for NDCG computation
     ratings_list = top_ratings[["user_id", "item_id", "reward"]]
-    return ratings_df, actions, user_stream, reward_list, ratings_list
+    return top_ratings, actions, user_stream, reward_list, ratings_list
 
 
 
@@ -105,16 +106,19 @@ def preprocess_amazon_data(amazon_ratings_path):
         # order of columns matters here!
         ratings_df[["user_id", "item_id", "rating"]], reader=sp.Reader(rating_scale=(1.0, 5.0))
     )
-    trainset, testset = sp.model_selection.train_test_split(full_dataset, test_size=0.1)
+    trainset, testset = sp.model_selection.train_test_split(full_dataset, test_size=1e-10)
 
     print(f"User-rating matrix filled to total ratio: {trainset.n_ratings / (trainset.n_items * trainset.n_users)}")
 
     # Dividing the context size by half because user and item context will be concatenated during evaluation.
-    svd = sp.SVD(n_factors=AMAZON_CONTEXT_DIMENSION // 2, n_epochs=50)
+    svd = sp.SVD(
+        n_factors=AMAZON_CONTEXT_DIMENSION // 2, n_epochs=250, random_state=42,
+        lr_all=0.01, reg_all=0.2,
+    )
     svd.fit(trainset)
 
-    predictions = svd.test(testset)
-    print(f"RMSE of SVD: {sp.accuracy.rmse(predictions)}")
+    # predictions = svd.test(testset)
+    # print(f"RMSE of SVD: {sp.accuracy.rmse(predictions)}")
 
     # SVD returns memory-views (cython), hence asarray calls.
     pu_all, qi_all = np.asarray(svd.pu), np.asarray(svd.qi)
