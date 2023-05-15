@@ -1,5 +1,4 @@
-from policies.bcmab_rp import BCMAB_RP
-from policies.bcmabrp_old import BCMABRP_Old
+from policies.dlintsrp import D_LinTS_RP
 from policies.cbrap import CBRAP
 from policies.deepfm import DeepFM_OnlinePolicy
 from policies.egreedy import EGreedy
@@ -23,14 +22,11 @@ def policy_generation(bandit, reduct_matrix, params):
         assert 0.0 <= shift_size <= 1.0
         cofig.SHIFT_SIZE = shift_size
 
-    if bandit == 'BCMAB_RP':
+    if bandit == 'D_LinTS_RP':
         gamma = params.get("gamma", 0.999)
         a = params.get("a", 0.2)
         red_dim_param = params.get("red_dim", red_dim)
-        policy = BCMAB_RP(org_dim, red_dim_param,  a=a, gamma=gamma)
-    elif bandit == 'BCMABRP_Old':
-        nu = params.get("nu", 0.5)
-        policy = BCMABRP_Old(org_dim, red_dim, reduct_matrix, delta=0.5, R=0.01, lambd=0.5, nu=nu)
+        policy = D_LinTS_RP(org_dim, red_dim_param,  a=a, gamma=gamma)
     elif bandit == 'CBRAP':
         alpha = params.get("alpha", 0.5)
         red_dim_param = params.get("red_dim", red_dim)

@@ -8,8 +8,8 @@
 # time in minutes
 #SBATCH --time=2440
 
-#SBATCH --output=log/11_run_bcmab_rp_100_%a.log
-#SBATCH --error=log/11_run_bcmab_rp_100_%a.log
+#SBATCH --output=log/11_run_dlintsrp_100_%a.log
+#SBATCH --error=log/11_run_dlintsrp_100_%a.log
 
 #SBATCH --mail-type=END
 #SBATCH --mail-user=elephunker1@gmail.com
@@ -20,4 +20,4 @@ scontrol show job $SLURM_JOB_ID
 
 source /home/maghsudi/ekortukov80/.bashrc
 conda activate bandit_env
-python 4_tune_parameters.py --data movielens --trials 30000 --dimension 120 --num-rep 3 --config config/bcmabrp${SLURM_ARRAY_TASK_ID}.json --tune --non-stationarity
+python 4_tune_parameters.py --data movielens --trials 30000 --dimension 120 --num-rep 3 --config config/dlintsrp${SLURM_ARRAY_TASK_ID}.json --tune --non-stationarity

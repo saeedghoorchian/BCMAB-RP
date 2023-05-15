@@ -1,4 +1,4 @@
-"""Script to find best BCMAB-RP params across dimensions"""
+"""Script to find best D-LinTS-RP params across dimensions"""
 import json
 import numpy as np
 from pathlib import Path
@@ -10,7 +10,7 @@ NUM_PARAMS = 72
 all_rewards = np.zeros((len(DIMENSIONS), NUM_PARAMS))
 for i, dim in enumerate(DIMENSIONS):
     p = Path('.')
-    paths = list(p.glob(f'*bcmabrp*d_{dim}.json'))
+    paths = list(p.glob(f'*dlintsrp*d_{dim}.json'))
     values = []
     for pat in paths:
         with open(pat, 'r') as f:

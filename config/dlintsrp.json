@@ -1,5 +1,5 @@
 [
-   {"algo": "BCMABRP", "params": [
+   {"algo": "D-LinTS-RP", "params": [
       {"nu": 0.1},
       {"nu": 0.2},
       {"nu": 0.3},

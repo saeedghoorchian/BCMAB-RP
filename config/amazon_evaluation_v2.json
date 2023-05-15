@@ -8,11 +8,11 @@
    {"algo": "CBRAP", "params": [{"red_dim": 50, "alpha": 0.3}]},
    {"algo": "CBRAP", "params": [{"red_dim": 100, "alpha": 0.3}]},
    {"algo": "CBRAP", "params": [{"red_dim": 200, "alpha": 0.3}]},
-   {"algo": "BCMAB_RP", "params": [{"red_dim": 10, "gamma": 0.99, "a": 0.1}]},
-   {"algo": "BCMAB_RP", "params": [{"red_dim": 20, "gamma": 0.99, "a": 0.1}]},
-   {"algo": "BCMAB_RP", "params": [{"red_dim": 50, "gamma": 0.99, "a": 0.1}]},
-   {"algo": "BCMAB_RP", "params": [{"red_dim": 100, "gamma": 0.99, "a": 0.1}]},
-   {"algo": "BCMAB_RP", "params": [{"red_dim": 200, "gamma": 0.99, "a": 0.1}]},
-   {"algo": "DeepFM", "params": [{"param_index": ?}]},
+   {"algo": "D_LinTS_RP", "params": [{"red_dim": 10, "gamma": 0.99, "a": 0.1}]},
+   {"algo": "D_LinTS_RP", "params": [{"red_dim": 20, "gamma": 0.99, "a": 0.1}]},
+   {"algo": "D_LinTS_RP", "params": [{"red_dim": 50, "gamma": 0.99, "a": 0.1}]},
+   {"algo": "D_LinTS_RP", "params": [{"red_dim": 100, "gamma": 0.99, "a": 0.1}]},
+   {"algo": "D_LinTS_RP", "params": [{"red_dim": 200, "gamma": 0.99, "a": 0.1}]},
+   {"algo": "DeepFM", "params": [{"param_index": 1024}]},  ('relu', 0.5, 0.001, 1024, 1024, 1024),
    {"algo": "RandomPolicy", "params": []}
 ]

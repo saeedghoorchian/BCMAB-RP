@@ -6,7 +6,7 @@ import six
 from policies.reduction_matrix import get_reduction_matrix
 
 
-class BCMAB_RP:
+class D_LinTS_RP:
     def __init__(self, context_dimension, red_dim, a, gamma, lambda_param=1, seed=None):
         self.context_dimension = context_dimension
         self.red_dim = red_dim
@@ -34,7 +34,7 @@ class BCMAB_RP:
         self.b = np.zeros((self.red_dim, 1))
         self.psi_hat = np.zeros((self.red_dim, 1))
 
-        self.name = f"BCMAB-RP (d={self.red_dim}, gamma={self.gamma}, a={self.a})"
+        self.name = f"D-LinTS-RP (d={self.red_dim}, gamma={self.gamma}, a={self.a})"
 
     def update_history(self, hst):  # (context, recommendation_id)
         self.history_memory.append(hst)
