@@ -1,6 +1,6 @@
-# Bayesian Linear Bandits for Large-Scale Recommender Systems
+# Bayesian Non-stationary Linear Bandits for Large-Scale Recommender Systems
 
-This repository contains the source code for the paper "Bayesian Linear Bandits for Large-Scale Recommender Systems".
+This repository contains the source code for the paper "Bayesian Non-stationary Linear Bandits for Large-Scale Recommender Systems".
 
 
 ## Getting Started 
