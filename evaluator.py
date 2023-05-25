@@ -49,12 +49,7 @@ def run_evaluation(
 
                 print(f"{policy.name} repetition {j+1}")
 
-                if dataset_type == "amazon":
-                    seq_reward, seq_ndcg = evaluate_policy(policy, times, dataset, tune, introduce_nonstationarity=non_stationarity)
-                elif dataset_type == "jester":
-                    seq_reward, seq_ndcg = evaluate_policy(policy, times, dataset, tune, introduce_nonstationarity=non_stationarity)
-                elif dataset_type == "movielens":
-                    seq_reward, seq_ndcg = evaluate_policy(policy, times, dataset, tune, introduce_nonstationarity=non_stationarity)
+                seq_reward, seq_ndcg = evaluate_policy(policy, times, dataset, tune, introduce_nonstationarity=non_stationarity)
 
                 time_end = timeit.default_timer()
 
