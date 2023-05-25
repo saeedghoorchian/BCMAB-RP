@@ -96,6 +96,9 @@ Run the evaluation for 1000 timesteps with reduction matrix of dimension 30 and 
 ```
 python 3_run_evaluation.py -t 1000 -d 30 --num-rep 3 --data movielens
 ```
+Evaluation script uses [evaluation.json](https://github.com/saeedghoorchian/D-LinTS-RP/blob/main/config/evaluation.json)
+configuration file. Edit it to set the hyperparameters and choose which
+policies to use in the experiment.
 
 To tune the hyperparameters of a policy create or edit a corresponding [json config file](https://github.com/saeedghoorchian/D-LinTS-RP/blob/main/config/dlintsrp.json)
 and run:
@@ -114,6 +117,9 @@ Then you can run the evaluation for 1000 timesteps with reduction matrix of dime
 ```
 python 3_run_evaluation.py -t 1000 -d 30 --num-rep 3 --data jester
 ```
+Evaluation script uses [evaluation.json](https://github.com/saeedghoorchian/D-LinTS-RP/blob/main/config/evaluation.json)
+configuration file. Edit it to set the hyperparameters and choose which
+policies to use in the experiment.
 
 To tune the hyperparameters of a policy create or edit a corresponding [json config file](https://github.com/saeedghoorchian/D-LinTS-RP/blob/main/config/dlintsrp.json)
 and run:
