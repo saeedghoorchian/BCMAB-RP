@@ -43,7 +43,7 @@ conda activate reduction_bandits
 ### Amazon Review Data 
 Download a subset of amazon review data (all subsets available [here](https://nijianmo.github.io/amazon/#subsets)):
 ```
-curl "http://deepyeti.ucsd.edu/jianmo/amazon/categoryFilesSmall/Video_Games.csv" --create-dirs -o "dataset/amazon/Video_Games.csv"
+curl "https://jmcauley.ucsd.edu/data/amazon_v2/categoryFilesSmall/Books.csv" --create-dirs -o "dataset/amazon/Books.csv"
 ```
 Preprocess the data (create context vectors and rewards):
 ```
