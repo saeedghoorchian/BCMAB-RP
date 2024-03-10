@@ -1,7 +1,8 @@
 import argparse
-import timeit
+import os
 import json
 import pickle
+import timeit
 
 from evaluator import run_evaluation
 from reduct_matrix import get_reduct_matrix
@@ -10,12 +11,21 @@ from config.cofig import PROJECT_DIR
 EVALUATION_CONFIG_FILE = "config/evaluation.json"
 
 
-def save_results(results, config_file, t, n, d, dataset):
+def save_results(results, config_file, t, n, d, dataset, run_name):
     config_name = config_file.split('/')[-1].split('.')[0]
-    with open(f"{PROJECT_DIR}/results/results_{dataset}_{config_name}_t_{t}_n_{n}_d_{d}.pickle", "wb") as f:
-        pickle.dump(results, f)
+    run_name_string = f"_{run_name}" if run_name else ""
+    filename = f"{PROJECT_DIR}/results/results_{dataset}_{config_name}_t_{t}_n_{n}_d_{d}{run_name_string}"
 
-    with open(f"{PROJECT_DIR}/results/results_{dataset}_{config_name}_t_{t}_n_{n}_d_{d}.json", "w") as f:
+    pickle_filename = f"{filename}.pickle"
+    json_filename = f"{filename}.json"
+
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(pickle_filename), exist_ok=True)
+
+    with open(pickle_filename, "wb") as f:
+        pickle.dump(results, f)
+    
+    with open(json_filename, "w") as f:
         json.dump(results[0], f)
 
 
@@ -69,6 +79,14 @@ if __name__ == "__main__":
         help="Config file for evaluation",
     )
 
+    parser.add_argument(
+        '--run-name',
+        dest="run_name",
+        type=str,
+        default="",
+        help="A custom string to add to the result file name",
+    )
+
     args = parser.parse_args()
 
     if args.dataset_type not in ["amazon", "movielens", "jester"]:
@@ -85,7 +103,7 @@ if __name__ == "__main__":
     )
 
     print("Saving results")
-    save_results(evaluation_results, args.config, args.trials, args.num_rep, args.dimension, args.dataset_type)
+    save_results(evaluation_results, args.config, args.trials, args.num_rep, args.dimension, args.dataset_type, args.run_name)
 
     timeEnd = timeit.default_timer()
     print(f"Done.\nThe whole experiment took {timeEnd - timeBegin:.2f} seconds.")

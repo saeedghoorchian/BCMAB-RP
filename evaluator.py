@@ -57,6 +57,7 @@ def run_evaluation(
                 ndcg_all.append(seq_ndcg)
                 time_all.append(time_end - time_begin)
                 final_rew_all.append(seq_reward[times - 1])
+                print(f"Cumulative reward: {seq_reward[times - 1][0]}")
                 print(f"This took {time_end - time_begin:.4f} seconds.\n")
 
             policies[policy.name] = policy

@@ -1,0 +1,10 @@
+[
+   {"algo": "D_LinTS_RP", "params": [
+      {"gamma": 0.99, "a": 0.1, "seed": 1},
+      {"gamma": 0.99, "a": 0.1, "seed": 2},
+      {"gamma": 0.99, "a": 0.1, "seed": 3},
+      {"gamma": 0.99, "a": 0.1, "seed": 4},
+      {"gamma": 0.99, "a": 0.1, "seed": 5}
+   ]
+   }
+]

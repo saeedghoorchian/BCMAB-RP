@@ -26,7 +26,8 @@ def policy_generation(bandit, reduct_matrix, params):
         gamma = params.get("gamma", 0.999)
         a = params.get("a", 0.2)
         red_dim_param = params.get("red_dim", red_dim)
-        policy = D_LinTS_RP(org_dim, red_dim_param,  a=a, gamma=gamma)
+        seed = params.get("seed", None)
+        policy = D_LinTS_RP(org_dim, red_dim_param,  a=a, gamma=gamma, seed=seed)
     elif bandit == 'CBRAP':
         alpha = params.get("alpha", 0.5)
         red_dim_param = params.get("red_dim", red_dim)
@@ -52,5 +53,7 @@ def policy_generation(bandit, reduct_matrix, params):
         policy = EGreedy(epsilon)
     elif bandit == 'RandomPolicy':
         policy = RandomPolicy()
+    else:
+        raise ValueError(f"Policy {bandit} is not supported")
 
     return policy

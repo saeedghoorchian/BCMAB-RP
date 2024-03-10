@@ -1,6 +1,7 @@
 # import wandb
 import numpy as np
 from datetime import datetime
+from tqdm import tqdm
 
 from sklearn.metrics import ndcg_score
 
@@ -93,7 +94,7 @@ def evaluate_policy(
     if nonstationarity_function is None and introduce_nonstationarity:
         nonstationarity_function = tuning_nonstationarity_function if tune else evaluation_nonstationarity_function
 
-    for t, user_at_t_data in enumerate(users_generator):
+    for t, user_at_t_data in tqdm(enumerate(users_generator)):
 
         reward_t, ndcg_t = get_reward_and_ndcg_for_user(
             policy, t, dataset, user_at_t_data, nonstationarity_function
@@ -108,8 +109,6 @@ def evaluate_policy(
             cumul_avg_reward = cumul_reward / t
             cumul_avg_ndcg = cumul_ndcg / t
 
-        if t % 5000 == 0:
-            print(t)
 
         change_point_close = any([
             True if x in cofig.NON_STATIONARITY_INTERVALS else False

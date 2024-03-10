@@ -18,7 +18,10 @@ class D_LinTS_RP:
         self.a = a
         self.gamma = gamma
 
-        self.random_state = np.random.RandomState(seed)
+        # We do not set the random seed here, because we want to average results over multiple runs.
+        # So we need each instatiation of the policy to be different.
+        # The reduction matrix, however, is the same for all runs of the policy (so the seed is set there).
+        self.random_state = np.random.RandomState(None)
 
         assert 0 < self.gamma < 1, "Parameter gamma must be in (0; 1)"
         assert self.a > 0, "Parameter a must be > 0"
@@ -34,7 +37,7 @@ class D_LinTS_RP:
         self.b = np.zeros((self.red_dim, 1))
         self.psi_hat = np.zeros((self.red_dim, 1))
 
-        self.name = f"D-LinTS-RP (d={self.red_dim}, gamma={self.gamma}, a={self.a})"
+        self.name = f"D-LinTS-RP (d={self.red_dim}, gamma={self.gamma}, a={self.a}, seed={seed})"
 
     def update_history(self, hst):  # (context, recommendation_id)
         self.history_memory.append(hst)

@@ -1,8 +1,8 @@
 import numpy as np
 
 
-def get_reduction_matrix(context_dimension, red_dim):
-    rng = np.random.default_rng(seed=42)
+def get_reduction_matrix(context_dimension, red_dim, random_seed=42):
+    rng = np.random.default_rng(seed=random_seed)
 
     # Default value for kappa**2 = 1 / d. If this will work badly I will tune it.
     kappa = np.sqrt(1 / context_dimension)
