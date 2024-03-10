@@ -23,7 +23,7 @@ class D_LinTS_RP:
         # The reduction matrix, however, is the same for all runs of the policy (so the seed is set there).
         self.random_state = np.random.RandomState(None)
 
-        assert 0 < self.gamma < 1, "Parameter gamma must be in (0; 1)"
+        assert 0 < self.gamma <= 1, "Parameter gamma must be in (0; 1]"
         assert self.a > 0, "Parameter a must be > 0"
 
         self.model_param_memory = deque(maxlen=1)
